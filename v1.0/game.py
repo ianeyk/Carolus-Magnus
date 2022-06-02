@@ -35,10 +35,9 @@ class Game():
     def initialize_players(self):
         players = []
         for player_number in range(self.nPlayers):
-            color_num = player_number % self.nPlayers
-            color = color_num
+            team_num = player_number % self.nPlayers
             starting_initiative = player_number
-            players.append(Player(self, player_number, color, starting_initiative))
+            players.append(Player(self, player_number, team_num, starting_initiative))
         return players
 
     def verify_action(self, action: Action):
@@ -179,6 +178,9 @@ class CubeSet():
 
     def get_cube_count(self, color_id):
         return self.cubes[color_id]
+
+    def get_cubes(self):
+        return self.cubes
 
     def add_cubeSet(self, other):
         for color_id in range(5):
