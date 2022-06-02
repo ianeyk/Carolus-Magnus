@@ -1,4 +1,6 @@
 import pygame
+from game import Game
+from random import randrange, uniform
 
 class GameState():
     def __init__(self):
@@ -48,16 +50,32 @@ class Render():
 
     def draw_player(self, center, area, player_num):
 
+        cube_size = 0.08
         def draw_court(court_cubes):
             gen_1 = CourtCubeGenerator(self.win, center, area, default_color=Render.pink)
             for color_id in range(5):
-                court_gen = gen_1.new_court_gen(((color_id - 2) / 2.4, 0.2), (1/5.2, 0.8), Render.cube_colors[color_id])
+                court_gen = gen_1.new(CourtCubeGenerator, ((color_id - 2) / 2.4, 0.2), (1/5.2, 0.8), Render.cube_colors[color_id])
+                # court_gen = gen_1.new_court_gen(((color_id - 2) / 2.4, 0.2), (1/5.2, 0.8), Render.cube_colors[color_id])
                 court_gen.draw_background(fill = (180, 180, 180), border = (120, 120, 120))
-                court_gen.draw_court_cubes(court_cubes[color_id], 0.08)
-                court_gen.draw_rect((0, 0.88), (1, 0.03))
+                court_gen.draw_court_cubes(court_cubes[color_id], cube_size)
+                court_gen.draw_rect((0, 0.88), (0.8, 0.03))
 
-        court_cubes = self.game_state.players[player_num].court.get_cubes()
+        def draw_cache(cache_cubes):
+            cache_gen = CacheCubeGenerator(self.win, center, area)
+            cache_gen.draw_cache_cubes(cache_cubes, cube_size)
+
+
+        # court_cubes = self.game_state.players[player_num].court.get_cubes()
+        court_cubes = []
+        for color_id in range(5):
+            court_cubes.append(randrange(0, 18))
         draw_court(court_cubes)
+
+        cache_color_ids = [randrange(0, 4) for cube in range(7)]
+        sorted_cache_color_ids = sorted(cache_color_ids)
+
+        cache_cubes = [Render.cube_colors[color_id] for color_id in sorted_cache_color_ids]
+        draw_cache(cache_cubes)
 
     def draw_board(self):
         pass
@@ -85,10 +103,10 @@ class RectangleGenerator(ReferenceFrame):
         self.default_color = default_color
         self.factor = factor
 
-    def new_rect_gen(self, rel_center, rel_area, default_color = (255, 255, 255), factor = 1):
+    def new(self, sub_class, rel_center, rel_area, default_color = (255, 255, 255), factor = 1):
         new_center = self.convert_xy(rel_center)
         new_area = self.convert_area(rel_area)
-        return RectangleGenerator(self.win, new_center, new_area, default_color, factor)
+        return sub_class(self.win, new_center, new_area, default_color, factor)
 
     def draw_rect(self, xy, wh, color = None, factor = None):
         if not color:
@@ -116,12 +134,14 @@ class RectangleGenerator(ReferenceFrame):
             self.draw_rect((0, 0), (1, 1), color = border, factor = 1)
         self.draw_rect((0, 0), (1, 1), color = fill, factor = 0.94)
 
-class CourtCubeGenerator(RectangleGenerator):
-    def new_court_gen(self, rel_center, rel_area, default_color = (255, 255, 255), factor = 1):
-        new_center = self.convert_xy(rel_center)
-        new_area = self.convert_area(rel_area)
-        return CourtCubeGenerator(self.win, new_center, new_area, default_color, factor)
+class CubeGenerator(RectangleGenerator):
+    def relative_cube_locs(self):
+        pass
 
+    def draw_court_cubes(self, n, cube_size):
+        pass
+
+class CourtCubeGenerator(CubeGenerator):
     def relative_cube_locs(self, cube_size):
         spacing = 1.2
         for pos in range(9):
@@ -136,6 +156,19 @@ class CourtCubeGenerator(RectangleGenerator):
             print(next_cube)
             self.draw_cube(next_cube, cube_size)
 
+class CacheCubeGenerator(CubeGenerator):
+    def relative_cube_locs(self, n): # colors is a list of length 7 or 9
+        offset_range = 0.05
+        for pos in range(n):
+            yield ((pos - n // 2) / n * 2 * 0.9 + uniform(-offset_range, offset_range),
+                                             0.8 + uniform(-offset_range, offset_range))
+
+    def draw_cache_cubes(self, colors, cube_size):
+        cube_gen = self.relative_cube_locs(len(colors))
+        for color in colors:
+            next_cube = next(cube_gen)
+            print(next_cube)
+            self.draw_cube(next_cube, cube_size, color = color)
 
 def main():
     width = 1280 - 0
