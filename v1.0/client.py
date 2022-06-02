@@ -2,11 +2,10 @@ import pygame
 from network import Network
 from player import Player
 
-width = 500
-height = 500
+width = 1280 - 0
+height = 720 - 60
 win = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Client")
-
 
 
 def redrawWindow(win, player, player2):
@@ -14,7 +13,6 @@ def redrawWindow(win, player, player2):
     player.draw(win)
     player2.draw(win)
     pygame.display.update()
-
 
 def main():
     run = True

@@ -47,12 +47,13 @@ class Game():
     def handle_action(self, action: Action):
         # perform cube actions: either add each cube to the court or add it to a territory
         self.verify_action(action)
+        acting_player = self.players[action.player]
         for cube_action in action.cube_actions:
             if cube_action.court:
-                self.players[action.player].add_to_court(cube_action.color_id)
+                acting_player.add_to_court(cube_action.color_id)
             else:
-                self.players[action.player].add_to_territory(cube_action.color_id, cube_action.terr_id)
-        self.replenish_cache(len(action.cube_actions))
+                acting_player.add_to_territory(cube_action.color_id, cube_action.terr_id)
+        acting_player.replenish_cache(len(action.cube_actions))
 
         # perform king action: advance the king marker and check territory control
         self.move_king(action.king)
@@ -80,7 +81,7 @@ class Game():
 
     def move_king(self, num_spaces):
         self.king += num_spaces
-        self.check_territory_owner(self.king)
+        self.check_territory_owner(self.king, True)
 
     def check_territory_owner(self, terr_id, king = False):
         """
@@ -255,7 +256,7 @@ def main():
     print(p1.court)
     print(g.territories[0])
     print(g.territories[0].cubes)
-    g.check_territory_owner(0)
+    g.move_king(0)
     print(g.territories[0])
 
     pass

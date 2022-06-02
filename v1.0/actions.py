@@ -14,3 +14,5 @@ class Action():
         self.player = player
         self.cube_actions = cube_actions
         self.king = king
+
+
