@@ -24,11 +24,17 @@ class Render():
         # drawing area sizes
         # player area
         player_area_border = 0.95
-        self.player_area = (self.width / 4 * player_area_border, self.height / 2 * player_area_border)
-        self.p0_center = (self.width * 1 / 8, self.height * 1 / 4)
-        self.p1_center = (self.width * 1 / 8, self.height * 3 / 4)
-        self.p2_center = (self.width * 7 / 8, self.height * 1 / 4)
-        self.p3_center = (self.width * 7 / 8, self.height * 3 / 4)
+        player_area = (self.width / 4 * player_area_border, self.height / 2 * player_area_border)
+        p0_center = (self.width * 1 / 8, self.height * 1 / 4)
+        p1_center = (self.width * 1 / 8, self.height * 3 / 4)
+        p2_center = (self.width * 7 / 8, self.height * 1 / 4)
+        p3_center = (self.width * 7 / 8, self.height * 3 / 4)
+
+        self.players = []
+        for player_number, center in enumerate([p0_center, p1_center, p2_center, p3_center]):
+            team = player_number % 2
+            self.players.append(PlayerRender(self.win, center, player_area, team, player_number))
+
         # board area
         self.board_area = (self.width / 3, self.height / 3)
         self.board_center = (self.width / 2, self.height / 2)
@@ -40,45 +46,61 @@ class Render():
         self.game_state = game_state
 
         self.win.fill((225, 225, 200)) # background color
-        self.draw_player(self.p3_center, self.player_area, 1)
-        self.draw_player(self.p2_center, self.player_area, 0)
-        self.draw_player(self.p1_center, self.player_area, 1)
-        self.draw_player(self.p0_center, self.player_area, 0)
+        for player in self.players:
+            player.draw_player(self.game_state)
         self.draw_board()
 
         pygame.display.update()
 
-    def draw_player(self, center, area, player_num):
+    def draw_board(self):
+        pass
+
+class PlayerRender():
+    def __init__(self, win, center, area, team, player_number):
+        self.win = win
+        self.center = center
+        self.area = area
+        self.team = team
+        self.player_number = player_number
+
+        self.active_cube_locs = []
+
+    def parse_game_state(self, game_state):
+        court_cubes = game_state.players[self.player_number].court.get_cubes()
+        cache_cubes = game_state.players[self.player_number].cache.get_cubes()
+        return court_cubes, cache_cubes
+
+    def draw_player(self, game_state):
+        # court_cubes, cache_cubes = self.parse_game_state(game_state)
 
         cube_size = 0.08
         def draw_court(court_cubes):
-            gen_1 = CourtCubeGenerator(self.win, center, area, default_color=Render.pink)
+            gen_1 = CourtCubeGenerator(self.win, self.center, self.area, default_color=Render.pink)
+            court_locs = []
             for color_id in range(5):
                 court_gen = gen_1.new(CourtCubeGenerator, ((color_id - 2) / 2.4, 0.2), (1/5.2, 0.8), Render.cube_colors[color_id])
                 # court_gen = gen_1.new_court_gen(((color_id - 2) / 2.4, 0.2), (1/5.2, 0.8), Render.cube_colors[color_id])
-                court_gen.draw_background(fill = (180, 180, 180), border = (120, 120, 120))
-                court_gen.draw_court_cubes(court_cubes[color_id], cube_size)
+                court_gen.draw_background(fill = (120, 120, 120), border = (120, 120, 120))
+                # court_gen.draw_background(fill = (180, 180, 180), border = (120, 120, 120))
                 court_gen.draw_rect((0, 0.88), (0.8, 0.03))
+                court_locs.append(court_gen.draw_court_cubes(court_cubes[color_id], cube_size))
 
         def draw_cache(cache_cubes):
-            cache_gen = CacheCubeGenerator(self.win, center, area)
-            cache_gen.draw_cache_cubes(cache_cubes, cube_size)
+            cache_gen = CacheCubeGenerator(self.win, self.center, self.area)
+            return cache_gen.draw_cache_cubes(cache_cubes, cube_size)
 
 
         # court_cubes = self.game_state.players[player_num].court.get_cubes()
         court_cubes = []
         for color_id in range(5):
             court_cubes.append(randrange(0, 18))
-        draw_court(court_cubes)
+        self.court_locs = draw_court(court_cubes)
 
         cache_color_ids = [randrange(0, 4) for cube in range(7)]
         sorted_cache_color_ids = sorted(cache_color_ids)
 
         cache_cubes = [Render.cube_colors[color_id] for color_id in sorted_cache_color_ids]
-        draw_cache(cache_cubes)
-
-    def draw_board(self):
-        pass
+        self.cache_locs = draw_cache(cache_cubes)
 
 class ReferenceFrame():
     def __init__(self, center, area):
@@ -150,25 +172,27 @@ class CourtCubeGenerator(CubeGenerator):
             yield ( cube_size * spacing, -(pos - 3 - 0.74) * cube_size * spacing * 2)
 
     def draw_court_cubes(self, n, cube_size):
-        cube_gen = self.relative_cube_locs(cube_size)
+        cube_gen = list(self.relative_cube_locs(cube_size))
         for cube in range(n):
             next_cube = next(cube_gen)
             print(next_cube)
             self.draw_cube(next_cube, cube_size)
+        return cube_gen[n:n + 4] # return the next four cube positions in case someone decides to add four cubes to the court
 
 class CacheCubeGenerator(CubeGenerator):
     def relative_cube_locs(self, n): # colors is a list of length 7 or 9
-        offset_range = 0.05
+        offset_range = 0.04
         for pos in range(n):
-            yield ((pos - n // 2) / n * 2 * 0.9 + uniform(-offset_range, offset_range),
+            yield ((pos - n // 2) / n * 2 * 0.92 + uniform(-offset_range, offset_range),
                                              0.8 + uniform(-offset_range, offset_range))
 
     def draw_cache_cubes(self, colors, cube_size):
-        cube_gen = self.relative_cube_locs(len(colors))
+        cube_gen = list(self.relative_cube_locs(len(colors)))
         for color in colors:
             next_cube = next(cube_gen)
             print(next_cube)
             self.draw_cube(next_cube, cube_size, color = color)
+        return cube_gen # return the locations of all the cache cubes
 
 def main():
     width = 1280 - 0

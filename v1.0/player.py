@@ -1,32 +1,52 @@
 import pygame
 
 class Player():
-    def __init__(self, x, y, width, height, color):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.color = color
-        self.rect = (x,y,width,height)
-        self.vel = 3
+    def __init__(self):
+        self.selected_cube = None
+        self.game_state = 0
 
     def draw(self, win):
         pygame.draw.rect(win, self.color, self.rect)
 
-    def move(self):
+    def select_cube(self):
+        total_cubes = 7
+        self.selected_cube = 0
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
-            self.x -= self.vel
+            self.selected_cube = (self.selected_cube + 1) % total_cubes
+            self.local_interface.select(self.selected_cube)
 
         if keys[pygame.K_RIGHT]:
-            self.x += self.vel
+            self.selected_cube = (self.selected_cube + 1) % total_cubes
+            self.local_interface.select(self.selected_cube)
 
         if keys[pygame.K_UP]:
-            self.y -= self.vel
+            self.local_interface.send_to_territory(self.selected_cube)
+            self.select_territory()
 
         if keys[pygame.K_DOWN]:
-            self.y += self.vel
+            self.local_interface.send_to_court(self.selected_cube)
+
+    def select_territory(self):
+        total_territories = len(self.game_state.territories)
+        self.selected_territory = 0
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_LEFT]:
+            self.selected_cube = (self.selected_cube + 1) % total_cubes
+            self.local_interface.select(self.selected_cube)
+
+        if keys[pygame.K_RIGHT]:
+            self.selected_cube = (self.selected_cube + 1) % total_cubes
+            self.local_interface.select(self.selected_cube)
+
+        if keys[pygame.K_UP]:
+            self.local_interface.send_to_territory(self.selected_cube)
+            self.select_territory()
+
+        if keys[pygame.K_DOWN]:
+            self.local_interface.send_to_court(self.selected_cube)
 
         self.update()
 
