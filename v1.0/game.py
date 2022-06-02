@@ -1,27 +1,14 @@
 from random import shuffle
-
-class Opening():
-    def __init__(self, player: int, initiative: int):
-        self.player = player
-        self.inititative = initiative
-
-class CubeAction():
-    def __init__(self, color_id: int, court: bool = False, terr_id: int = 0):
-        self.color_id = color_id
-        self.court = court
-        self.terr_id = terr_id
-
-class Action():
-    def __init__(self, player: int, cube_actions: tuple[CubeAction, CubeAction, CubeAction], king: int):
-        self.player = player
-        self.cube_actions = cube_actions
-        self.king = king
+from actions import Opening, CubeAction, Action
 
 class Game():
     # only implementing two-player mode
     def __init__(self, nPlayers): # nPlayers is 2, 3, or 4
         self.nPlayers = nPlayers
         self.current_initiative_already_played_this_turn = set()
+        self.current_players_already_played_this_turn = set()
+        self.whose_turn = 0 # starting player
+
         self.cube_supply = self.initialize_cube_supply()
         self.territories = self.initialize_territories()
         self.king = 0 # marker for which territory the king is on
@@ -69,8 +56,22 @@ class Game():
 
         # perform king action: advance the king marker and check territory control
         self.move_king(action.king)
+        self.whose_turn = self.next_player()
 
-    def verify_opeining(opening: Opening):
+    def next_player(self):
+        initiatives = [player.current_initiative for player in self.players]
+        while len(initiatives) > 0:
+            next_player_candidate = initiatives.index(min(initiatives))
+            if next_player_candidate not in self.current_players_already_played_this_turn:
+                self.current_players_already_played_this_turn.add(next_player_candidate)
+                return next_player_candidate
+            # else
+            initiatives.pop(next_player_candidate) # and repeat
+
+        # when all players have played:
+        self.current_players_already_played_this_turn = set()
+
+    def verify_opening(opening: Opening):
         pass
 
     def handle_opening(self, opening: Opening):
@@ -194,7 +195,7 @@ class Player():
         self.player_number = player_number
         self.team = team
         self.initiative_tokens = {1, 2, 3, 4, 5}
-        self.used_initiative_tokens = set()
+        self.used_initiative_tokens = []
         self.current_initiative = starting_initiative
 
         # cube sets
@@ -212,9 +213,9 @@ class Player():
         if initiative in self.game.current_initiative_already_played_this_turn:
             print("Someone else has already played that initiative marker this turn")
 
-        self.initiative_tokens -= {initiative} # remove the initiative marker from play
-        self.used_initiative_tokens += {initiative} # and add it to the used stack
-        self.game.current_initiative_already_played_this_turn += {initiative}
+        self.initiative_tokens.remove(initiative) # remove the initiative marker from play
+        self.used_initiative_tokens.append(initiative) # and add it to the used stack
+        self.game.current_initiative_already_played_this_turn.add(initiative)
         self.turn_order = initiative
 
     def replenish_cache(self, n):
