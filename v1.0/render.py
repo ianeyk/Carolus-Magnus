@@ -80,8 +80,7 @@ class PlayerRender():
             for color_id in range(5):
                 court_gen = gen_1.new(CourtCubeGenerator, ((color_id - 2) / 2.4, 0.2), (1/5.2, 0.8), Render.cube_colors[color_id])
                 # court_gen = gen_1.new_court_gen(((color_id - 2) / 2.4, 0.2), (1/5.2, 0.8), Render.cube_colors[color_id])
-                court_gen.draw_background(fill = (120, 120, 120), border = (120, 120, 120))
-                # court_gen.draw_background(fill = (180, 180, 180), border = (120, 120, 120))
+                court_gen.draw_background(fill = (140, 140, 140), border = (120, 120, 120))
                 court_gen.draw_rect((0, 0.88), (0.8, 0.03))
                 court_locs.append(court_gen.draw_court_cubes(court_cubes[color_id], cube_size))
 
