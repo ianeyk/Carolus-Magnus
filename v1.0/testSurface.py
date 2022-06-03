@@ -1,6 +1,7 @@
 from numpy import spacing
 import pygame
 from random import randrange, uniform
+import math
 
 class Cube(pygame.sprite.Sprite):
     pngs = {
@@ -10,14 +11,36 @@ class Cube(pygame.sprite.Sprite):
         3:"./sprites/yellow_cube1.png",
         4:"./sprites/pink_cube1.png",
     }
-    size = 20
+    size = 17
 
     def __init__(self, x, y, color_id):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
+        self.x = x
+        self.y = y
+        self.color_id = color_id
 
-        png_image = pygame.image.load(Cube.pngs[color_id])
-        self.image = pygame.transform.smoothscale(png_image, (Cube.size, Cube.size))
-        self.rect = (x - Cube.size / 2, y - Cube.size / 2, Cube.size, Cube.size)
+        self.png_image = pygame.image.load(Cube.pngs[color_id])
+        self.image = self.get_image(Cube.size)
+        self.rect = self.get_rect(Cube.size)
+        # self.image = pygame.transform.smoothscale(png_image, (Cube.size, Cube.size))
+        # self.rect = (x - Cube.size / 2, y - Cube.size / 2, Cube.size, Cube.size)
+
+    def get_image(self, size):
+        return pygame.transform.smoothscale(self.png_image, (math.floor(size), math.floor(size)))
+
+    def get_rect(self, size):
+        return (self.x - size / 2, self.y - size / 2, size, size)
+
+    def highlight(self):
+        self.rect = self.get_rect(Cube.size * 1.5)
+        self.image = self.get_image(Cube.size * 1.5)
+        return self.rect
+
+    def un_highlight(self):
+        prev_rect = self.rect
+        self.rect = self.get_rect(Cube.size)
+        self.image = self.get_image(Cube.size)
+        return prev_rect
 
 class CourtSection(pygame.sprite.Sprite):
     pngs = {
@@ -29,7 +52,7 @@ class CourtSection(pygame.sprite.Sprite):
     }
     cube_vertical_offset = 38
     spacing = 1.2
-    size = (2 * Cube.size * spacing + 10, 9 * Cube.size * spacing + cube_vertical_offset - 7)
+    size = (math.floor(2 * Cube.size * spacing + 10), math.floor(9 * Cube.size * spacing + cube_vertical_offset - 7))
 
     def __init__(self, x, y, color_id, num_cubes):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
@@ -66,17 +89,21 @@ class Cache():
 
     spacing = 1.5
 
-    def __init__(self, x, y, size, cube_list):
+    def __init__(self, x, y, size, cache_list):
         self.x = x
         self.y = y
-        self.cube_list = cube_list
+        self.cache_list = cache_list # list of 7 color_ids
         self.size = size
+        self.cube_list = [] # list of cube objects for highlighting purposes
 
-    def draw_cubes(self, group):
         locs = self.cube_locs(7, Cache.spacing)
 
-        for loc, color_id in zip(locs, self.cube_list):
+        for loc, color_id in zip(locs, self.cache_list):
             cube = Cube(self.x + loc[0], self.y + loc[1], color_id)
+            self.cube_list.append(cube)
+
+    def draw_cubes(self, group):
+        for cube in self.cube_list:
             cube.add(group)
 
     def cube_locs(self, nCubes, spacing = 1.5):
@@ -87,13 +114,28 @@ class Cache():
             # locs.append(((pos - nCubes // 2) * Cube.size * spacing + uniform(*jitter_range) * Cube.size, Cube.size / 2 + uniform(*jitter_range) * Cube.size))
         return locs
 
-class Court(pygame.sprite.Sprite):
+    def select_cube(self, which_cube): # which_cube is an index from 0 to 6, indicating which cube in the cache has been selected
+        updated_rects = self.deselect_all() # unhighlight all cubes
+        print(self.cube_list[which_cube])
+        updated_rect = self.cube_list[which_cube].highlight() # then highlight the interesting cube
+        updated_rects.append(updated_rect)
+        return updated_rects # returns the rect containing the highlighted cube, for pygame.display.update() in the main loop
+
+    def deselect_all(self):
+        updated_rects = []
+        for other_cube in self.cube_list:
+            updated_rect = other_cube.un_highlight()
+            updated_rects.append(updated_rect)
+        return updated_rects
+
+class PlayerArea(pygame.sprite.Sprite):
+    """Draws a complete Player Area, including the court and the cache."""
     pngs = {
         0: "./sprites/court_outline_white.png",
         1: "./sprites/court_outline_black.png",
         2: "./sprites/court_outline_gray.png"
     }
-    size = (CourtSection.size[0] * 5 * CourtSection.spacing - 10, CourtSection.size[1] * 1.3 + 10)
+    size = (math.floor(CourtSection.size[0] * 5 * CourtSection.spacing - 10), math.floor(CourtSection.size[1] * 1.3 + 10))
     small_offset_from_edges = 18
     large_offset_from_edges = 24
 
@@ -105,16 +147,18 @@ class Court(pygame.sprite.Sprite):
         self.team = team
         self.cube_counts = cube_counts
         self.cache_list = cache_list
-        self.cache = Cache(x, y - Court.size[1] / 2 + Court.large_offset_from_edges, Court.size, cache_list)
+        self.cache = Cache(x, y - PlayerArea.size[1] / 2 + PlayerArea.large_offset_from_edges, PlayerArea.size, cache_list)
 
-        png_image = pygame.image.load(Court.pngs[team])
-        self.image = pygame.transform.smoothscale(png_image, Court.size)
-        print(Court.size)
-        self.rect = (x - Court.size[0] / 2, y - Court.size[1] / 2, *Court.size)
+        png_image = pygame.image.load(PlayerArea.pngs[team])
+        self.image = pygame.transform.smoothscale(png_image, PlayerArea.size)
+        self.rect = (x - PlayerArea.size[0] / 2, y - PlayerArea.size[1] / 2, *PlayerArea.size)
 
     def draw(self):
-        group = pygame.sprite.Group()
-        self.add(group)
+        if len(self.groups()) > 0:
+            group = self.groups()[0]
+        else:
+            group = pygame.sprite.Group()
+            self.add(group)
         self.draw_court(group)
         self.cache.draw_cubes(group)
         return group
@@ -123,31 +167,60 @@ class Court(pygame.sprite.Sprite):
         section_spacing = 1.1
         for color_id, cube_count in enumerate(self.cube_counts):
             section_x = self.x + (color_id - 2) * CourtSection.size[0] * section_spacing
-            section_y = self.y + Court.size[1] / 2 - CourtSection.size[1] - Court.small_offset_from_edges
+            section_y = self.y + PlayerArea.size[1] / 2 - CourtSection.size[1] - PlayerArea.small_offset_from_edges
             court_section = CourtSection(section_x, section_y, color_id, cube_count)
             court_section.draw(group)
         return group
 
-def main():
-    width = 1280
-    height = 720
-    pygame.display.init()
-    screen = pygame.Surface((width, height))
-    # screen.init()
-    d = pygame.display.set_mode((width, height))
+class Render(pygame.sprite.Sprite):
 
-    cube = Cube(1000, 150, 0)
-    g = pygame.sprite.Group()
-    cube.add(g)
-    cube_counts = [randrange(0, 18) for color_id in range(5)]
-    court = Court(250, 360, 0, cube_counts, [1, 2, 0, 0, 1, 4, 3])
-    g2 = court.draw()
-    g2.draw(d)
-    g.draw(d)
+    def __init__(self, width, height, game_state):
+        pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
+
+        self.width = width
+        self.height = height
+        self.game_state = game_state
+
+        # initialize the display
+        pygame.display.init()
+        # screen = pygame.Surface((width, height))
+        self.display = pygame.display.set_mode((width, height))
+
+        png_image = pygame.image.load("./sprites/background1.png")
+        self.image = pygame.transform.smoothscale(png_image, (width, height))
+        self.rect = (0, 0, *PlayerArea.size)
+
+        # initialize player boards
+        p0_center = (self.width * 1 / 8, self.height * 1 / 4)
+        p1_center = (self.width * 1 / 8, self.height * 3 / 4)
+        p2_center = (self.width * 7 / 8, self.height * 1 / 4)
+        p3_center = (self.width * 7 / 8, self.height * 3 / 4)
+
+        self.players = []
+        for player_number, center in enumerate([p0_center, p1_center, p2_center, p3_center]):
+            team = player_number % 2
+            cube_counts = [randrange(0, 18) for i in range(5)]
+            cache_list = sorted([randrange(0, 4) for i in range(7)])
+            self.players.append(PlayerArea(*center, team, cube_counts, cache_list))
 
 
-    pygame.display.flip()
+    def draw(self):
+        self.display.fill((255, 255, 255))
+        background_group = pygame.sprite.Group()
+        self.add(background_group)
+        background_group.draw(self.display)
+        for player in self.players:
+            court_group = player.draw()
+            court_group.draw(self.display)
 
-main()
+# def main():
+#     width = 1280
+#     height = 720
+#     r = Render(width, height, 0)
+#     r.players[0].cache.select_cube(2)
+#     r.draw()
+#     pygame.display.flip()
+
+# main()
 
 pass
