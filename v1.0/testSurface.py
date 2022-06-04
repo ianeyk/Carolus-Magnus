@@ -166,7 +166,7 @@ class PlayerArea(pygame.sprite.Sprite):
                 group = self.groups()[0]
             else:
                 group = pygame.sprite.Group()
-                self.add(group)
+        self.add(group)
         self.draw_court(group)
         self.cache.draw_cubes(group)
         return group

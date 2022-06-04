@@ -4,14 +4,14 @@ from player import Player
 from testSurface import Render
 import time
 
-# width = 1280
-# height = 720
+width = 1280
+height = 720
 
 def main():
 
     # initialize the display
-    width = 1000
-    height = 600
+    # width = 1000
+    # height = 600
     pygame.display.init()
     pygame.display.set_caption("Client")
     # screen = pygame.Surface((width, height))
