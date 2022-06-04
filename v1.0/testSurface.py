@@ -104,7 +104,12 @@ class Cache():
 
     def draw_cubes(self, group = None):
         if not group:
-            group = pygame.sprite.Group()
+            if len(self.cube_list[0].groups()) > 0:
+                group = self.cube_list[0].groups()[0]
+            else:
+                group = pygame.sprite.Group()
+        # if not group:
+        #     group = pygame.sprite.Group()
         for cube in self.cube_list:
             cube.add(group)
         return group
@@ -120,8 +125,7 @@ class Cache():
     def select_cube(self, which_cube): # which_cube is an index from 0 to 6, indicating which cube in the cache has been selected
         updated_rects = self.deselect_all() # unhighlight all cubes
         print(self.cube_list[which_cube])
-        updated_rect = self.cube_list[which_cube].highlight() # then highlight the interesting cube
-        updated_rects.append(updated_rect)
+        updated_rects.append(self.cube_list[which_cube].highlight()) # then highlight the interesting cube
         return updated_rects # returns the rect containing the highlighted cube, for pygame.display.update() in the main loop
 
     def deselect_all(self):

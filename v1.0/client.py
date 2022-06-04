@@ -49,6 +49,7 @@ def main():
 
             r.players[0].cache.draw_cubes().draw(display)
             pygame.display.update(updated_rects)
+            # pygame.display.flip()
 
         # p.move()
         # redrawWindow(win, p, p2)
