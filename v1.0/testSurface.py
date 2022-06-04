@@ -102,9 +102,12 @@ class Cache():
             cube = Cube(self.x + loc[0], self.y + loc[1], color_id)
             self.cube_list.append(cube)
 
-    def draw_cubes(self, group):
+    def draw_cubes(self, group = None):
+        if not group:
+            group = pygame.sprite.Group()
         for cube in self.cube_list:
             cube.add(group)
+        return group
 
     def cube_locs(self, nCubes, spacing = 1.5):
         # jitter_range = (-0.4, 0.2)
@@ -153,12 +156,13 @@ class PlayerArea(pygame.sprite.Sprite):
         self.image = pygame.transform.smoothscale(png_image, PlayerArea.size)
         self.rect = (x - PlayerArea.size[0] / 2, y - PlayerArea.size[1] / 2, *PlayerArea.size)
 
-    def draw(self):
-        if len(self.groups()) > 0:
-            group = self.groups()[0]
-        else:
-            group = pygame.sprite.Group()
-            self.add(group)
+    def draw(self, group = None):
+        if not group:
+            if len(self.groups()) > 0:
+                group = self.groups()[0]
+            else:
+                group = pygame.sprite.Group()
+                self.add(group)
         self.draw_court(group)
         self.cache.draw_cubes(group)
         return group
@@ -181,11 +185,6 @@ class Render(pygame.sprite.Sprite):
         self.height = height
         self.game_state = game_state
 
-        # initialize the display
-        pygame.display.init()
-        # screen = pygame.Surface((width, height))
-        self.display = pygame.display.set_mode((width, height))
-
         png_image = pygame.image.load("./sprites/background1.png")
         self.image = pygame.transform.smoothscale(png_image, (width, height))
         self.rect = (0, 0, *PlayerArea.size)
@@ -205,13 +204,14 @@ class Render(pygame.sprite.Sprite):
 
 
     def draw(self):
-        self.display.fill((255, 255, 255))
-        background_group = pygame.sprite.Group()
-        self.add(background_group)
-        background_group.draw(self.display)
+        group = pygame.sprite.Group()
+        self.add(group)
+        # background_group.draw(self.display)
         for player in self.players:
-            court_group = player.draw()
-            court_group.draw(self.display)
+            player.draw(group)
+            # court_group = player.draw(group)
+        return group
+            # court_group.draw(self.display)
 
 # def main():
 #     width = 1280

@@ -8,26 +8,27 @@ class Player():
 
     def select_cube(self):
         total_cubes = 7
-        keys = pygame.key.get_pressed()
-        # print(keys)
-        # assert(not any(keys))
+        event = pygame.event.poll()
+        print(event)
+        if event.type != pygame.KEYDOWN:
+            return False
 
-        if keys[pygame.K_LEFT]:
+        if event.key == pygame.K_LEFT:
             self.selected_cube = (self.selected_cube - 1) % total_cubes
             # self.local_interface.select_cube(self.selected_cube)
             return True
 
-        if keys[pygame.K_RIGHT]:
+        if event.key == pygame.K_RIGHT:
             self.selected_cube = (self.selected_cube + 1) % total_cubes
             # self.local_interface.select_cube(self.selected_cube)
             return True
 
-        if keys[pygame.K_UP]:
+        if event.key == pygame.K_UP:
             # self.local_interface.send_to_territory(self.selected_cube)
             self.select_territory()
             return True
 
-        if keys[pygame.K_DOWN]:
+        if event.key == pygame.K_DOWN:
             # self.local_interface.send_to_court(self.selected_cube)
             return True
 
