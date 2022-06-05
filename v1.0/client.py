@@ -6,6 +6,9 @@ from render import Render
 width = 1280
 height = 720
 
+def on_quit():
+    pass
+
 def main():
 
     # initialize the display
@@ -41,6 +44,7 @@ def main():
         for event in events:
             if event.type == pygame.QUIT:
                 run = False
+                on_quit()
                 pygame.quit()
 
         for event in events:
