@@ -1,7 +1,13 @@
 import pygame
 from cube import Cube
+from enum import Enum
+
 
 class Cache():
+    class Placement(Enum):
+        CACHE = 0
+        COURT = 1
+        TERRITORY = 2
 
     spacing = 1.5
 
@@ -11,12 +17,15 @@ class Cache():
         self.cache_list = cache_list # list of 7 color_ids
         self.size = size
         self.cube_list = [] # list of cube objects for highlighting purposes
+        self.cube_placements = []
+
 
         locs = self.cube_locs(7, Cache.spacing)
 
         for loc, color_id in zip(locs, self.cache_list):
             cube = Cube(self.x + loc[0], self.y + loc[1], color_id)
             self.cube_list.append(cube)
+            self.cube_placements.append(Cache.Placement.CACHE)
 
     def draw_cubes(self, group = None):
         if not group:
