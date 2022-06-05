@@ -6,9 +6,9 @@ class Player():
         self.game_state = 0
         self.selected_cube = 0
 
-    def select_cube(self):
+    def select_cube(self, event):
         total_cubes = 7
-        event = pygame.event.poll()
+        # event = pygame.event.poll()
         print(event)
         if event.type != pygame.KEYDOWN:
             return False

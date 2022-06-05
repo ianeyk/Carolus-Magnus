@@ -18,6 +18,7 @@ def main():
 
     pygame.event.set_blocked(None)
     pygame.event.set_allowed(pygame.KEYDOWN)
+    pygame.event.set_allowed(pygame.QUIT)
     pygame.event.get()
 
     run = True
@@ -36,25 +37,26 @@ def main():
         clock.tick(30)
         # p2 = n.send(p)
 
-        # for event in pygame.event.get():
-        #     if event.type == pygame.QUIT:
-        #         run = False
-        #         pygame.quit()
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
 
-        # time.sleep(0.1)
-        if p1.select_cube():
-            print("here")
-            print(p1.selected_cube)
-            updated_rects = r.players[0].select_cube(p1.selected_cube)
+        for event in events:
+            if p1.select_cube(event):
+                print("here")
+                print(p1.selected_cube)
+                updated_rects = r.players[0].select_cube(p1.selected_cube)
 
-            r.players[0].cache.draw_cubes().draw(display)
-            pygame.display.update(updated_rects)
-
-            if p1.down:
-                updated_rects = r.players[0].add_to_court(p1.selected_cube)
                 r.players[0].cache.draw_cubes().draw(display)
                 pygame.display.update(updated_rects)
-            # pygame.display.flip()
+
+                if p1.down:
+                    updated_rects = r.players[0].add_to_court(p1.selected_cube)
+                    r.players[0].cache.draw_cubes().draw(display)
+                    pygame.display.update(updated_rects)
+                # pygame.display.flip()
 
         # p.move()
         # redrawWindow(win, p, p2)
