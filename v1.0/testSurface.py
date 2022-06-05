@@ -135,6 +135,10 @@ class Cache():
             updated_rects.append(updated_rect)
         return updated_rects
 
+    def add_to_court(self, which_cube):
+        # self.cube_list[which_cube].
+        pass
+
 class PlayerArea(pygame.sprite.Sprite):
     """Draws a complete Player Area, including the court and the cache."""
     pngs = {
@@ -160,6 +164,13 @@ class PlayerArea(pygame.sprite.Sprite):
         self.image = pygame.transform.smoothscale(png_image, PlayerArea.size)
         self.rect = (x - PlayerArea.size[0] / 2, y - PlayerArea.size[1] / 2, *PlayerArea.size)
 
+        self.court_sections = []
+        section_spacing = 1.1
+        for color_id, cube_count in enumerate(self.cube_counts):
+            section_x = self.x + (color_id - 2) * CourtSection.size[0] * section_spacing
+            section_y = self.y + PlayerArea.size[1] / 2 - CourtSection.size[1] - PlayerArea.small_offset_from_edges
+            self.court_sections.append(CourtSection(section_x, section_y, color_id, cube_count))
+
     def draw(self, group = None):
         if not group:
             if len(self.groups()) > 0:
@@ -172,11 +183,7 @@ class PlayerArea(pygame.sprite.Sprite):
         return group
 
     def draw_court(self, group):
-        section_spacing = 1.1
-        for color_id, cube_count in enumerate(self.cube_counts):
-            section_x = self.x + (color_id - 2) * CourtSection.size[0] * section_spacing
-            section_y = self.y + PlayerArea.size[1] / 2 - CourtSection.size[1] - PlayerArea.small_offset_from_edges
-            court_section = CourtSection(section_x, section_y, color_id, cube_count)
+        for court_section in self.court_sections:
             court_section.draw(group)
         return group
 
