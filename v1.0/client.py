@@ -31,8 +31,9 @@ def main():
 
 
     r = Render(width, height, 0)
-    p1 = Player()
-    updated_rects = r.players[0].select_cube(0)
+    p1_render = r.players[0]
+    p1 = Player(p1_render)
+    updated_rects = p1_render.select_cube(0)
     r.draw().draw(display)
     pygame.display.flip()
 
@@ -40,27 +41,19 @@ def main():
         clock.tick(30)
         # p2 = n.send(p)
 
-        events = pygame.event.get()
-        for event in events:
-            if event.type == pygame.QUIT:
-                run = False
-                on_quit()
-                pygame.quit()
+        event = pygame.event.poll()
 
-        for event in events:
-            if p1.select_cube(event):
-                print("here")
-                print(p1.selected_cube)
-                updated_rects = r.players[0].select_cube(p1.selected_cube)
+        if event.type == pygame.QUIT:
+            run = False
+            on_quit()
+            pygame.quit()
 
-                r.players[0].cache.draw_cubes().draw(display)
-                pygame.display.update(updated_rects)
-
-                if p1.down:
-                    updated_rects = r.players[0].add_to_court(p1.selected_cube)
-                    r.players[0].cache.draw_cubes().draw(display)
-                    pygame.display.update(updated_rects)
-                # pygame.display.flip()
+        group, updated_rects = p1.select_cube(event)
+        if group:
+            group.draw(display)
+        if updated_rects:
+            pygame.display.update(updated_rects)
+        # pygame.display.flip()
 
         # p.move()
         # redrawWindow(win, p, p2)

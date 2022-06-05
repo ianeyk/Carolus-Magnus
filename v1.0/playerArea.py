@@ -64,3 +64,12 @@ class PlayerArea(pygame.sprite.Sprite):
         return updated_rects
         # return self.select_cube(which_cube)
         # return court_section.rect
+
+    def remove_from_court(self, which_cube):
+        color_id = self.cache_list[which_cube] # color id of the selected cube
+        court_section = self.court_sections[color_id]
+        new_xy = self.cache.coords_of_cube(self.cache.cube_locs()[which_cube])
+        court_section.num_cubes -= 1
+        updated_rects = self.cache.cube_list[which_cube].update_pos(new_xy)
+        updated_rects.extend(self.select_cube(which_cube))
+        return updated_rects

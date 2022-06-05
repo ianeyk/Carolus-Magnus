@@ -1,13 +1,7 @@
 import pygame
 from cube import Cube
-from enum import Enum
-
 
 class Cache():
-    class Placement(Enum):
-        CACHE = 0
-        COURT = 1
-        TERRITORY = 2
 
     spacing = 1.5
 
@@ -17,15 +11,17 @@ class Cache():
         self.cache_list = cache_list # list of 7 color_ids
         self.size = size
         self.cube_list = [] # list of cube objects for highlighting purposes
-        self.cube_placements = []
 
 
-        locs = self.cube_locs(7, Cache.spacing)
+        locs = self.cube_locs(spacing = Cache.spacing)
 
         for loc, color_id in zip(locs, self.cache_list):
-            cube = Cube(self.x + loc[0], self.y + loc[1], color_id)
+            cube = Cube(*self.coords_of_cube(loc), color_id, png_path = Cube.cache_pngs[color_id])
             self.cube_list.append(cube)
-            self.cube_placements.append(Cache.Placement.CACHE)
+            #TODO: give each cube that is generated as part of the cache a slightly different PNG (highlighted or such)
+
+    def coords_of_cube(self, loc):
+        return (self.x + loc[0], self.y + loc[1])
 
     def draw_cubes(self, group = None):
         if not group:
@@ -39,7 +35,10 @@ class Cache():
             cube.add(group)
         return group
 
-    def cube_locs(self, nCubes, spacing = 1.5):
+    def cube_locs(self, spacing = 1.5):
+        nCubes = len(self.cache_list)
+        if not spacing:
+            spacing = Cache.spacing
         # jitter_range = (-0.4, 0.2)
         locs = []
         for pos in range(nCubes):

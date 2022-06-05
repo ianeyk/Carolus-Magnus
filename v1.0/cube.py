@@ -2,23 +2,32 @@ import pygame
 import math
 
 class Cube(pygame.sprite.Sprite):
-    pngs = {
-        0:"./sprites/green_cube1.png",
-        1:"./sprites/red_cube1.png",
-        2:"./sprites/blue_cube1.png",
-        3:"./sprites/yellow_cube1.png",
-        4:"./sprites/pink_cube1.png",
+    default_pngs = {
+        0:"./sprites/cubes/green_cube1.png",
+        1:"./sprites/cubes/red_cube1.png",
+        2:"./sprites/cubes/blue_cube1.png",
+        3:"./sprites/cubes/yellow_cube1.png",
+        4:"./sprites/cubes/pink_cube1.png"
+    }
+    cache_pngs = {
+        0:"./sprites/cache_cubes/green_cube2.png",
+        1:"./sprites/cache_cubes/red_cube2.png",
+        2:"./sprites/cache_cubes/blue_cube2.png",
+        3:"./sprites/cache_cubes/yellow_cube2.png",
+        4:"./sprites/cache_cubes/pink_cube2.png"
     }
     size = 17
 
-    def __init__(self, x, y, color_id):
+    def __init__(self, x, y, color_id, png_path = None):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
         self.x = x
         self.y = y
         self.color_id = color_id
         self.highlighted = False
 
-        self.png_image = pygame.image.load(Cube.pngs[color_id])
+        if not png_path:
+            png_path = Cube.default_pngs[color_id]
+        self.png_image = pygame.image.load(png_path)
         self.image = self.get_image(Cube.size)
         self.rect = None # used to set self.prev_rect in the next function
         self.rect = self.get_rect(Cube.size)
