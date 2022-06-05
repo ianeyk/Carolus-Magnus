@@ -1,7 +1,7 @@
 import pygame
 from network import Network
 from player import Player
-from testSurface import Render
+from render import Render
 
 width = 1280
 height = 720
