@@ -29,6 +29,7 @@ def main():
 
     r = Render(width, height, 0)
     p1 = Player()
+    updated_rects = r.players[0].select_cube(0)
     r.draw().draw(display)
     pygame.display.flip()
 
@@ -45,10 +46,15 @@ def main():
         if p1.select_cube():
             print("here")
             print(p1.selected_cube)
-            updated_rects = r.players[0].cache.select_cube(p1.selected_cube)
+            updated_rects = r.players[0].select_cube(p1.selected_cube)
 
             r.players[0].cache.draw_cubes().draw(display)
             pygame.display.update(updated_rects)
+
+            if p1.down:
+                updated_rects = r.players[0].add_to_court(p1.selected_cube)
+                r.players[0].cache.draw_cubes().draw(display)
+                pygame.display.update(updated_rects)
             # pygame.display.flip()
 
         # p.move()

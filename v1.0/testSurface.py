@@ -1,3 +1,4 @@
+from tkinter import W
 from numpy import spacing
 import pygame
 from random import randrange, uniform
@@ -18,9 +19,11 @@ class Cube(pygame.sprite.Sprite):
         self.x = x
         self.y = y
         self.color_id = color_id
+        self.highlighted = False
 
         self.png_image = pygame.image.load(Cube.pngs[color_id])
         self.image = self.get_image(Cube.size)
+        self.rect = None # used to set self.prev_rect in the next function
         self.rect = self.get_rect(Cube.size)
         # self.image = pygame.transform.smoothscale(png_image, (Cube.size, Cube.size))
         # self.rect = (x - Cube.size / 2, y - Cube.size / 2, Cube.size, Cube.size)
@@ -29,18 +32,27 @@ class Cube(pygame.sprite.Sprite):
         return pygame.transform.smoothscale(self.png_image, (math.floor(size), math.floor(size)))
 
     def get_rect(self, size):
+        self.prev_rect = self.rect
         return (self.x - size / 2, self.y - size / 2, size, size)
 
     def highlight(self):
+        self.highlighted = True
         self.rect = self.get_rect(Cube.size * 1.5)
         self.image = self.get_image(Cube.size * 1.5)
-        return self.rect
+        return [self.prev_rect, self.rect]
 
     def un_highlight(self):
-        prev_rect = self.rect
+        # prev_rect = self.rect
+        self.highlighted = False
         self.rect = self.get_rect(Cube.size)
         self.image = self.get_image(Cube.size)
-        return prev_rect
+        return [self.prev_rect, self.rect]
+
+    def update_pos(self, new_xy):
+        self.x = new_xy[0]
+        self.y = new_xy[1]
+        self.rect = self.get_rect(Cube.size * 1.5 if self.highlighted else Cube.size)
+        return [self.prev_rect, self.rect]
 
 class CourtSection(pygame.sprite.Sprite):
     pngs = {
@@ -66,15 +78,21 @@ class CourtSection(pygame.sprite.Sprite):
         self.image = pygame.transform.smoothscale(png_image, CourtSection.size)
         self.rect = (x - CourtSection.size[0] / 2, y, *CourtSection.size)
 
+        self.cube_list = []
+        locs = self.cube_locs(CourtSection.spacing)
+
+        for loc in locs[0:self.num_cubes]:
+            self.cube_list.append(Cube(*self.coords_of_cube(loc), self.color_id))
+
+    def coords_of_cube(self, loc):
+        return (self.x + loc[0], self.y + loc[1] + CourtSection.cube_vertical_offset)
+
     def draw(self, group):
         self.add(group)
         self.draw_cubes(group)
 
     def draw_cubes(self, group):
-        locs = self.cube_locs(CourtSection.spacing)
-
-        for loc in locs[0:self.num_cubes]:
-            cube = Cube(self.x + loc[0], self.y + loc[1] + CourtSection.cube_vertical_offset, self.color_id)
+        for cube in self.cube_list:
             cube.add(group)
 
     def cube_locs(self, spacing = 1.2):
@@ -124,20 +142,15 @@ class Cache():
 
     def select_cube(self, which_cube): # which_cube is an index from 0 to 6, indicating which cube in the cache has been selected
         updated_rects = self.deselect_all() # unhighlight all cubes
-        print(self.cube_list[which_cube])
-        updated_rects.append(self.cube_list[which_cube].highlight()) # then highlight the interesting cube
+        updated_rects.extend(self.cube_list[which_cube].highlight()) # then highlight the interesting cube
         return updated_rects # returns the rect containing the highlighted cube, for pygame.display.update() in the main loop
 
     def deselect_all(self):
         updated_rects = []
         for other_cube in self.cube_list:
             updated_rect = other_cube.un_highlight()
-            updated_rects.append(updated_rect)
+            updated_rects.extend(updated_rect)
         return updated_rects
-
-    def add_to_court(self, which_cube):
-        # self.cube_list[which_cube].
-        pass
 
 class PlayerArea(pygame.sprite.Sprite):
     """Draws a complete Player Area, including the court and the cache."""
@@ -186,6 +199,20 @@ class PlayerArea(pygame.sprite.Sprite):
         for court_section in self.court_sections:
             court_section.draw(group)
         return group
+
+    def select_cube(self, which_cube):
+        return self.cache.select_cube(which_cube)
+
+    def add_to_court(self, which_cube):
+        color_id = self.cache_list[which_cube] # color id of the selected cube
+        court_section = self.court_sections[color_id]
+        new_xy = court_section.coords_of_cube(court_section.cube_locs()[court_section.num_cubes])
+        court_section.num_cubes += 1
+        updated_rects = self.cache.cube_list[which_cube].update_pos(new_xy)
+        updated_rects.extend(self.select_cube(which_cube))
+        return updated_rects
+        # return self.select_cube(which_cube)
+        # return court_section.rect
 
 class Render(pygame.sprite.Sprite):
 
