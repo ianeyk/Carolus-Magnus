@@ -14,6 +14,7 @@ class Player():
             return False
 
         if event.key == pygame.K_LEFT:
+            # bolt on a thing that says to go to the next cube of a different color
             self.selected_cube = (self.selected_cube - 1) % total_cubes
             # self.local_interface.select_cube(self.selected_cube)
             self.down = False
