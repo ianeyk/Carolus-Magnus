@@ -73,3 +73,10 @@ class PlayerArea(pygame.sprite.Sprite):
         updated_rects = self.cache.cube_list[which_cube].update_pos(new_xy)
         updated_rects.extend(self.select_cube(which_cube))
         return updated_rects
+
+    def add_to_territory(self, which_cube):
+        # new_xy =
+        pass
+
+    def remove_from_territory(self, which_cube):
+        pass

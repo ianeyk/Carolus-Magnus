@@ -30,10 +30,10 @@ class Map(pygame.sprite.Sprite):
             else:
                 radius = Map.inner_radius
             # assign positions around a circle
-            angle = 2 * math.pi / len(self.game_territories) * pos
+            angle = 2 * math.pi / len(self.game_territories) * pos - math.pi / 2
             terr_x = self.x + (radius * math.cos(angle)) * Map.ellipse_w_factor
             terr_y = self.y + (radius * math.sin(angle)) * Map.ellipse_h_factor
-            territories.append(Territory(terr_x, terr_y, angle))
+            territories.append(Territory(terr_x, terr_y, angle, 1))
         return territories
 
     def draw(self, group):
@@ -57,3 +57,6 @@ class Map(pygame.sprite.Sprite):
         for terr in self.territories:
             updated_rects.append(terr.un_highlight())
         return updated_rects
+
+    def add_to_territory(self, which_terr, color_id):
+        return self.territories[which_terr].add_cube(color_id)

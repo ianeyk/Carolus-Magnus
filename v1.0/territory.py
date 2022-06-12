@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 from cube import Cube
 
 class Territory(pygame.sprite.Sprite):
@@ -18,23 +19,23 @@ class Territory(pygame.sprite.Sprite):
     # small_offset_from_edges = 18
     # large_offset_from_edges = 24
 
-    def __init__(self, x, y, angle, terr_type = 0):
+    def __init__(self, x, y, angle, starting_cube, terr_type = 0):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
 
         self.x = x
         self.y = y
         self.angle = -angle
         self.terr_type = terr_type
+        self.cube_list = [starting_cube]
+        self.placement_order = list(range(24))
+        random.shuffle(self.placement_order)
 
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
 
-        # self.highlight()
-        # self.un_highlight()
-
-        self.cube_list = []
-        for loc in range(24):
-            self.cube_list.append(Cube(*self.coords_of_cube(loc), 0))
+        self.cubes = []
+        for loc, color_id in enumerate(self.cube_list):
+            self.cubes.append(Cube(*self.coords_of_cube(self.placement_order[loc]), color_id))
 
     def coords_of_cube(self, loc):
         assert(loc <= 24) # fails for more cubes on one hex
@@ -69,7 +70,7 @@ class Territory(pygame.sprite.Sprite):
         self.draw_cubes(group)
 
     def draw_cubes(self, group):
-        for cube in self.cube_list:
+        for cube in self.cubes:
             cube.add(group)
 
     def set_image(self, image, size = None):
@@ -97,3 +98,11 @@ class Territory(pygame.sprite.Sprite):
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
         return (prev_rect.x, prev_rect.y, prev_rect.w, prev_rect.h)
+
+    def next_loc(self):
+        return self.coords_of_cube(self.placement_order[len(self.cube_list)])
+
+    def add_cube(self, color_id):
+        new_xy = self.next_loc()
+        self.cube_list.append(color_id)
+        return new_xy

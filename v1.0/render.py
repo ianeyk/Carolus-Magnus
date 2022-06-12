@@ -32,14 +32,14 @@ class Render(pygame.sprite.Sprite):
             self.players.append(PlayerArea(*center, team, cube_counts, cache_list))
 
         self.map = Map(self.width / 2, self.height / 2, [0] * 15)
-        self.terr = Territory(self.width / 2, self.height / 2, angle = 0)
+        self.terr = Territory(self.width / 2, self.height / 2, 0, 4)
 
     def draw(self):
         group = pygame.sprite.Group()
         self.add(group)
-        for player in self.players:
-            player.draw(group)
         self.map.draw(group)
         self.terr.draw(group)
+        for player in self.players:
+            player.draw(group)
         return group
 pass

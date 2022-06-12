@@ -33,10 +33,8 @@ def main():
 
     r = Render(width, height, 0)
     p1_render = r.players[0]
-    p1 = Player(p1_render)
+    p1 = Player(p1_render, r.map)
     updated_rects = p1_render.select_cube(0)
-    updated_rects.extend(r.map.select_territory(0))
-    updated_rects.extend(r.map.select_territory(2))
     r.draw().draw(display)
     pygame.display.flip()
     i = 0
@@ -53,23 +51,12 @@ def main():
             on_quit()
             pygame.quit()
 
-        group, updated_rects = p1.select_cube(event)
+        group, updated_rects = p1.select(event)
         if group:
             group.draw(display)
         if updated_rects:
-            updated_rects.extend(r.map.select_territory(k))
-            k = (k + 1) % 15
-            # for rect in updated_rects:
-            #     pygame.draw.rect(display, (255, i, j, 0.2), rect)
-                # pygame.display.update(rect)
-            # time.sleep(0.1)
             pygame.display.update(updated_rects)
-            i = (i + 20) % 255
-            j = (j + 91) % 255
             pygame.display.flip()
-
-        # p.move()
-        # redrawWindow(win, p, p2)
 
 # def main():
 #     width = 1280
