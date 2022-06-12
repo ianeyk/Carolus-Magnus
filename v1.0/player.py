@@ -21,7 +21,7 @@ class Player():
 
     def select_cube(self, event:pygame.event.Event): # -> tuple[pygame.sprite.Group, list[any]]:
 
-        print(event)
+        # print(event)
         action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             return None, None

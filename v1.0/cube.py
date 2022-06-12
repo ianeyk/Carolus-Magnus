@@ -16,7 +16,7 @@ class Cube(pygame.sprite.Sprite):
         3:"./sprites/cache_cubes/yellow_cube2.png",
         4:"./sprites/cache_cubes/pink_cube2.png"
     }
-    size = 17
+    size = 13.4 # 12 # 17
 
     def __init__(self, x, y, color_id, png_path = None):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor

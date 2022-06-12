@@ -2,6 +2,8 @@ import pygame
 from random import randrange
 
 from playerArea import PlayerArea
+from territory import Territory
+from map import Map
 
 class Render(pygame.sprite.Sprite):
 
@@ -29,10 +31,15 @@ class Render(pygame.sprite.Sprite):
             cache_list = sorted([randrange(0, 4) for i in range(7)])
             self.players.append(PlayerArea(*center, team, cube_counts, cache_list))
 
+        self.map = Map(self.width / 2, self.height / 2, [0] * 15)
+        self.terr = Territory(self.width / 2, self.height / 2, angle = 0)
+
     def draw(self):
         group = pygame.sprite.Group()
         self.add(group)
         for player in self.players:
             player.draw(group)
+        self.map.draw(group)
+        self.terr.draw(group)
         return group
 pass
