@@ -28,10 +28,9 @@ class Territory(pygame.sprite.Sprite):
 
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
-        self.rect = self.image.get_rect(center = (self.x, self.y))
-        # self.rect = (x - Territory.size[0] / 2, y - Territory.size[1] / 2, *Territory.size)
 
         # self.highlight()
+        # self.un_highlight()
 
         self.cube_list = []
         for loc in range(24):
@@ -48,7 +47,7 @@ class Territory(pygame.sprite.Sprite):
 
     def intra_hex_coords(self, center_x, center_y, pos): # pos starts at the top and moves clockwise
         radius = Cube.size * Territory.spacing
-        cube_angle = math.pi - math.pi / 6 + math.pi * 2 / 6 * pos + self.angle
+        cube_angle = math.pi - math.pi / 6 + math.pi * 2 / 6 * pos - self.angle
         intra_hex_x = center_x + radius * math.cos(cube_angle)
         intra_hex_y = center_y + radius * math.sin(cube_angle)
         return intra_hex_x, intra_hex_y
@@ -61,8 +60,8 @@ class Territory(pygame.sprite.Sprite):
             else:
                 hex_x = self.x - Territory.side_length * math.sqrt(3) / 2
                 hex_y = self.y - 0.75 * Territory.side_length
-        rotated = (self.x + (xout := ((hex_x - self.x) *  math.cos(self.angle) + (hex_y - self.y) * math.sin(self.angle))),
-                   self.y + (yout := ((hex_x - self.x) * -math.sin(self.angle) + (hex_y - self.y) * math.cos(self.angle))))
+        rotated = (self.x + (hex_x - self.x) *  math.cos(self.angle) + (hex_y - self.y) * math.sin(self.angle),
+                   self.y + (hex_x - self.x) * -math.sin(self.angle) + (hex_y - self.y) * math.cos(self.angle))
         return rotated
 
     def draw(self, group):
@@ -73,14 +72,28 @@ class Territory(pygame.sprite.Sprite):
         for cube in self.cube_list:
             cube.add(group)
 
-    def set_image(self, image):
-        self.image = pygame.transform.smoothscale(image, Territory.size)
+    def set_image(self, image, size = None):
+        if not size:
+            size = Territory.size
+        self.image = pygame.transform.smoothscale(image, size)
         self.image = pygame.transform.rotate(self.image, math.degrees(self.angle))
+
+        self.rect = self.image.get_rect(center = (self.x, self.y))
+        # self.rect = (x - Territory.size[0] / 2, y - Territory.size[1] / 2, *Territory.size)
+
 
     def highlight(self):
         highlighted_image = pygame.image.load(Territory.highlighted_pngs[self.terr_type])
-        self.set_image(highlighted_image)
+        scale_factor = 1.1
+        self.set_image(highlighted_image, size = (Territory.size[0] * scale_factor, Territory.size[1] * scale_factor))
+
+        new_rect = self.image.get_rect(center = (self.x, self.y))
+        return (new_rect.x, new_rect.y, new_rect.w, new_rect.h)
 
     def un_highlight(self):
+        # store the large rect for updated_rect purposes
+        prev_rect = self.image.get_rect(center = (self.x, self.y))
+
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
+        return (prev_rect.x, prev_rect.y, prev_rect.w, prev_rect.h)

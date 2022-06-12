@@ -18,6 +18,7 @@ class Map(pygame.sprite.Sprite):
         self.y = y
         self.game_territories = game_territories # a subset of the game_state object
         self.territories = self.create_territories()
+        self.selected_territory = 0
 
     def create_territories(self):
         territories = []
@@ -41,4 +42,18 @@ class Map(pygame.sprite.Sprite):
         return group
 
     def select_territory(self, which_terr):
-        return self.territories[which_terr].highlight()
+        updated_rects = []
+        # unhighlight the previously highlighted territory
+        updated_rects.append(self.territories[self.selected_territory].un_highlight())
+        # and highlight the new one
+        self.selected_territory = which_terr
+        updated_rects.append(self.territories[self.selected_territory].highlight())
+        print("updated_rects = ", updated_rects)
+        return updated_rects
+        #TODO: make it return a rect to the two updated territories (unhighlighted and newly highlighted)
+
+    def de_select_all(self):
+        updated_rects = []
+        for terr in self.territories:
+            updated_rects.append(terr.un_highlight())
+        return updated_rects
