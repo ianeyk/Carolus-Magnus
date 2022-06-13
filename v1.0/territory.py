@@ -24,7 +24,7 @@ class Territory(pygame.sprite.Sprite):
 
         self.x = x
         self.y = y
-        self.angle = -angle
+        self.angle = -angle + math.pi
         self.terr_type = terr_type
         self.cube_list = [starting_cube]
         self.placement_order = list(range(24))
@@ -99,10 +99,24 @@ class Territory(pygame.sprite.Sprite):
         self.set_image(png_image)
         return (prev_rect.x, prev_rect.y, prev_rect.w, prev_rect.h)
 
-    def next_loc(self):
+    def add_cube(self, color_id):
+        print("adding cube")
+
+        for idx, existing_color_id in enumerate(self.cube_list):
+            if existing_color_id is None: # search for empty slots first before appending to the end
+                self.cube_list[idx] = color_id
+                return self.coords_of_cube(self.placement_order[idx])
+
+        self.cube_list.append(color_id)
+        print("cube_list:", self.cube_list)
         return self.coords_of_cube(self.placement_order[len(self.cube_list)])
 
-    def add_cube(self, color_id):
-        new_xy = self.next_loc()
-        self.cube_list.append(color_id)
-        return new_xy
+    def remove_cube(self, expected_color_id):
+        print("subtracting cube")
+        print("cube_list:", self.cube_list)
+        for idx, color_id in enumerate(self.cube_list[::-1]):
+            if color_id == expected_color_id:
+                self.cube_list[len(self.cube_list) - 1 - idx] = None
+                print("CUBE_LIST:", self.cube_list)
+                return
+        raise IndexError(f"No cubes of color {expected_color_id} in this territory")

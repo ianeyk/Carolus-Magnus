@@ -48,9 +48,11 @@ class Map(pygame.sprite.Sprite):
         # and highlight the new one
         self.selected_territory = which_terr
         updated_rects.append(self.territories[self.selected_territory].highlight())
-        print("updated_rects = ", updated_rects)
         return updated_rects
         #TODO: make it return a rect to the two updated territories (unhighlighted and newly highlighted)
+
+    def de_select_territory(self, which_terr):
+        return self.territories[which_terr].un_highlight()
 
     def de_select_all(self):
         updated_rects = []
@@ -60,3 +62,6 @@ class Map(pygame.sprite.Sprite):
 
     def add_to_territory(self, which_terr, color_id):
         return self.territories[which_terr].add_cube(color_id)
+
+    def remove_from_territory(self, which_terr, color_id):
+        return self.territories[which_terr].remove_cube(color_id)

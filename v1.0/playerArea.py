@@ -23,6 +23,7 @@ class PlayerArea(pygame.sprite.Sprite):
         self.cube_counts = cube_counts
         self.cache_list = cache_list
         self.cache = Cache(x, y - PlayerArea.size[1] / 2 + PlayerArea.large_offset_from_edges, PlayerArea.size, cache_list)
+        self.territory_holding_location = (x, y - PlayerArea.size[1] / 2 - PlayerArea.large_offset_from_edges)
 
         png_image = pygame.image.load(PlayerArea.pngs[team])
         self.image = pygame.transform.smoothscale(png_image, PlayerArea.size)
