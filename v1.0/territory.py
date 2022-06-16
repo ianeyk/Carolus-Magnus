@@ -127,29 +127,3 @@ class Territory(pygame.sprite.Sprite):
         self.temp_cube_list[idx] = None
         self.cube_list[self.permanent_cubes + idx] = None
         print(self.temp_cube_list)
-
-
-
-    # def add_cube(self, color_id):
-    #     print("adding cube")
-
-    #     for idx, existing_color_id in enumerate(self.cube_list):
-    #         if existing_color_id is None: # search for empty slots first before appending to the end
-    #             self.cube_list[idx] = color_id
-    #             print("cube_list:", self.cube_list, "; adding to index", idx, ", which is cube position", self.placement_order[idx])
-    #             return self.coords_of_cube(self.placement_order[idx])
-
-    #     self.cube_list.append(color_id)
-    #     print("cube_list:", self.cube_list, "; adding to index", len(self.cube_list) - 1, ", which is cube position", self.placement_order[len(self.cube_list) - 1])
-    #     return self.coords_of_cube(self.placement_order[len(self.cube_list) - 1])
-
-
-    # def remove_cube(self, expected_color_id):
-    #     # print("cube_list:", self.cube_list)
-    #     for idx, color_id in enumerate(self.cube_list[::-1]):
-    #         if color_id == expected_color_id:
-    #             self.cube_list[len(self.cube_list) - 1 - idx] = None
-    #             print("subtracting cube at index", len(self.cube_list) - 1 - idx, ", which is cube position", self.placement_order[len(self.cube_list) - 1 - idx])
-    #             print("CUBE_LIST:", self.cube_list)
-    #             return
-    #     raise IndexError(f"No cubes of color {expected_color_id} in this territory")
