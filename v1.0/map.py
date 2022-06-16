@@ -6,9 +6,9 @@ from cube import Cube
 from territory import Territory
 
 class Map(pygame.sprite.Sprite):
-    outer_radius = 280 # 300
-    inner_radius = 280 # 300
-    third_radius = 280 # 300
+    outer_radius = 270 # 300
+    inner_radius = 270 # 300
+    third_radius = 270 # 300
     ellipse_h_factor = 1
     ellipse_w_factor = 1
 
@@ -60,8 +60,8 @@ class Map(pygame.sprite.Sprite):
             updated_rects.append(terr.un_highlight())
         return updated_rects
 
-    def add_to_territory(self, which_terr, color_id):
-        return self.territories[which_terr].add_cube(color_id)
+    def add_to_territory(self, which_terr, cube_id, color_id):
+        return self.territories[which_terr].add_cube(cube_id, color_id)
 
-    def remove_from_territory(self, which_terr, color_id):
-        return self.territories[which_terr].remove_cube(color_id)
+    def remove_from_territory(self, which_terr, cube_id):
+        return self.territories[which_terr].remove_cube(cube_id)

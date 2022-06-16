@@ -67,6 +67,8 @@ class Player():
                 self.selection_mode = Player.SelectionMode.CUBES
                 self.map.de_select_territory(self.selected_territory)
                 self.selected_cube = self.right_cube(-1) # reset to the first cube in the cache
+                if self.cube_placements[self.selected_cube] == Player.CubePlacement.TERRITORY:
+                    self.selected_territory = self.terr_list[self.selected_cube]
                 updated_rects = self.player_render.select_cube(self.selected_cube)
 
         return self.player_render.cache.draw_cubes(), updated_rects # returns a group
@@ -80,14 +82,14 @@ class Player():
         return updated_rects
 
     def add_to_territory(self):
-        new_xy = self.map.add_to_territory(self.selected_territory, self.player_render.cache_list[self.selected_cube])
+        new_xy = self.map.add_to_territory(self.selected_territory, self.selected_cube, self.player_render.cache_list[self.selected_cube])
         updated_rects = self.player_render.cache.cube_list[self.selected_cube].update_pos(new_xy)
         updated_rects.extend(self.player_render.select_cube(self.selected_cube))
         self.terr_list[self.selected_cube] = self.selected_territory
         return updated_rects
 
     def remove_from_territory(self):
-        self.map.remove_from_territory(self.selected_territory, self.player_render.cache_list[self.selected_cube])
+        self.map.remove_from_territory(self.terr_list[self.selected_cube], self.selected_cube) # (self.selected_territory, self.selected_cube)
         self.terr_list[self.selected_cube] = None
         return self.move_to_holding()
 
@@ -199,20 +201,20 @@ class Player():
             return 0
             #TODO: if placement limit has been reached, don't let search_mode go back to cache
 
-    def _left_cube(self, prev_color_id):
-        for idx in list(range(0, self.selected_cube))[::-1]:
-            if self.cache_list[idx] != prev_color_id and self.cube_placements[idx] == self.search_mode:
-                return idx
+    # def _left_cube(self, prev_color_id):
+    #     for idx in list(range(0, self.selected_cube))[::-1]:
+    #         if self.cache_list[idx] != prev_color_id and self.cube_placements[idx] == self.search_mode:
+    #             return idx
 
-        self.left_search_mode()
-        self.selected_cube = len(self.cache_list)
-        return self._left_cube(-1)
+    #     self.left_search_mode()
+    #     self.selected_cube = len(self.cache_list)
+    #     return self._left_cube(-1)
 
-    def left_search_mode(self):
-        if self.search_mode == Player.CubePlacement.CACHE:
-            self.search_mode = Player.CubePlacement.TERRITORY
-        elif self.search_mode == Player.CubePlacement.TERRITORY:
-            self.search_mode = Player.CubePlacement.COURT
-        elif self.search_mode == Player.CubePlacement.COURT:
-            self.search_mode = Player.CubePlacement.CACHE
-            #TODO: if placement limit has been reached, don't let search_mode go back to cache
+    # def left_search_mode(self):
+    #     if self.search_mode == Player.CubePlacement.CACHE:
+    #         self.search_mode = Player.CubePlacement.TERRITORY
+    #     elif self.search_mode == Player.CubePlacement.TERRITORY:
+    #         self.search_mode = Player.CubePlacement.COURT
+    #     elif self.search_mode == Player.CubePlacement.COURT:
+    #         self.search_mode = Player.CubePlacement.CACHE
+    #         #TODO: if placement limit has been reached, don't let search_mode go back to cache

@@ -5,7 +5,7 @@ from player import Player
 from render import Render
 
 width = 1280
-height = 720
+# height = 720
 
 def on_quit():
     pass
@@ -14,7 +14,7 @@ def main():
 
     # initialize the display
     # width = 1000
-    # height = 600
+    height = 500
     pygame.display.init()
     pygame.display.set_caption("Client")
     # screen = pygame.Surface((width, height))
