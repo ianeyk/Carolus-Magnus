@@ -6,9 +6,10 @@ from render import Render
 
 width = 1280
 height = 720
+action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
 
 def on_quit():
-    pass
+    print("Player quit. Ending session")
 
 def main():
 
@@ -30,16 +31,15 @@ def main():
     # p = n.getP()
     clock = pygame.time.Clock()
 
-
+    group = pygame.sprite.Group()
     r = Render(width, height, 0)
     p1_render = r.players[0]
     p1 = Player(p1_render, r.map)
     updated_rects = p1_render.select_cube(0)
-    r.draw().draw(display)
+    r.draw(group)
+    group.draw(display)
     pygame.display.flip()
-    i = 0
-    j = 0
-    k = 0
+
     while run:
         clock.tick(30)
         # p2 = n.send(p)
@@ -51,19 +51,14 @@ def main():
             on_quit()
             pygame.quit()
 
-        group, updated_rects = p1.select(event)
-        if group:
-            group.draw(display)
-        if updated_rects:
-            pygame.display.update(updated_rects)
-            pygame.display.flip()
+        if event.type != pygame.KEYDOWN or event.key not in action_keys:
+            continue
 
-# def main():
-#     width = 1280
-#     height = 720
-#     r = Render(width, height, 0)
-#     r.players[0].cache.select_cube(2)
-#     r.draw()
-#     pygame.display.flip()
+        updated_rects = p1.select(event)
+        p1.player_render.cache.draw_cubes(group)
+        group.draw(display)
+        # pygame.display.update(updated_rects)
+        pygame.display.flip()
+
 
 main()
