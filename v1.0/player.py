@@ -1,17 +1,18 @@
-from multiprocessing import Event
 import pygame
 from enum import Enum
 from playerArea import PlayerArea
 from map import Map
 
 class Player():
-    class CubePlacement(Enum):
+    # Enum for tracking what region the current cube is in on the board
+    class CubeRegion(Enum):
         CACHE = 0
         COURT = 1
         TERRITORY = 2
         TERRITORY_HOLDING = 2
 
-    class SelectionMode(Enum):
+    # Enum for tracking whether the arrow keys are being used for selecting cubes from the Cache or Territories on the map
+    class SelectionType(Enum):
         CUBES = 0
         TERRITORIES = 1
 
@@ -21,21 +22,21 @@ class Player():
         self.map = player_map
         self.n_territories = len(self.map.territories)
 
-        self.selection_mode = Player.SelectionMode.CUBES
+        self.selection_mode = Player.SelectionType.CUBES
         self.selected_cube = 0
         self.player_render = player_render
         self.cache_list = self.player_render.cache_list
         self.cache_size = len(self.cache_list)
         self.terr_list = [None] * self.cache_size
-        self.cube_placements = [Player.CubePlacement.CACHE for i in range(self.cache_size)]
-        self.search_mode = Player.CubePlacement.CACHE
+        self.cube_placements = [Player.CubeRegion.CACHE for i in range(self.cache_size)] # all cubes start in the Cache
+        self.search_mode = Player.CubeRegion.CACHE # used in self.right_cube()
 
     def select(self, event:pygame.event.Event):
         action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             return None
 
-        if self.selection_mode == Player.SelectionMode.CUBES:
+        if self.selection_mode == Player.SelectionType.CUBES:
             return self.select_cube(event)
         # else:
         return self.select_territory(event)
@@ -52,30 +53,29 @@ class Player():
             updated_rects = self.map.select_territory(self.selected_territory)
 
         elif event.key == pygame.K_UP:
-            if self.cube_placements[self.selected_cube] == Player.CubePlacement.TERRITORY_HOLDING:
-                self.cube_placements[self.selected_cube] = Player.CubePlacement.CACHE
-                self.selection_mode = Player.SelectionMode.CUBES
+            if self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY_HOLDING:
+                self.cube_placements[self.selected_cube] = Player.CubeRegion.CACHE
+                self.selection_mode = Player.SelectionType.CUBES
                 self.map.de_select_territory(self.selected_territory)
                 # self.selected_cube = self.right_cube(-1) # reset to the first cube in the cache
                 self.return_to_cache()
                 updated_rects = self.player_render.select_cube(self.selected_cube)
 
         elif event.key == pygame.K_DOWN:
-            if self.cube_placements[self.selected_cube] == Player.CubePlacement.TERRITORY_HOLDING:
-                self.cube_placements[self.selected_cube] = Player.CubePlacement.TERRITORY
+            if self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY_HOLDING:
+                self.cube_placements[self.selected_cube] = Player.CubeRegion.TERRITORY
                 updated_rects = self.add_to_territory()
-                self.selection_mode = Player.SelectionMode.CUBES
+                self.selection_mode = Player.SelectionType.CUBES
                 self.map.de_select_territory(self.selected_territory)
                 self.selected_cube = self.right_cube(-1) # reset to the first cube in the cache
-                if self.cube_placements[self.selected_cube] == Player.CubePlacement.TERRITORY:
+                if self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY:
                     self.selected_territory = self.terr_list[self.selected_cube]
                 updated_rects = self.player_render.select_cube(self.selected_cube)
 
-        # self.player_render.cache.draw_cubes()
         return updated_rects # returns a group
 
     def move_to_holding(self):
-        self.selection_mode = Player.SelectionMode.TERRITORIES
+        self.selection_mode = Player.SelectionType.TERRITORIES
 
         new_xy = self.player_render.territory_holding_location
         updated_rects = self.player_render.cache.cube_list[self.selected_cube].update_pos(new_xy)
@@ -115,25 +115,24 @@ class Player():
             updated_rects = self.player_render.select_cube(self.selected_cube)
 
         elif event.key == pygame.K_UP:
-            if self.cube_placements[self.selected_cube] == Player.CubePlacement.COURT:
-                self.cube_placements[self.selected_cube] = Player.CubePlacement.CACHE
+            if self.cube_placements[self.selected_cube] == Player.CubeRegion.COURT:
+                self.cube_placements[self.selected_cube] = Player.CubeRegion.CACHE
                 updated_rects = self.player_render.remove_from_court(self.selected_cube)
-            elif self.cube_placements[self.selected_cube] == Player.CubePlacement.CACHE:
-                self.cube_placements[self.selected_cube] = Player.CubePlacement.TERRITORY_HOLDING
+            elif self.cube_placements[self.selected_cube] == Player.CubeRegion.CACHE:
+                self.cube_placements[self.selected_cube] = Player.CubeRegion.TERRITORY_HOLDING
                 updated_rects = self.move_to_holding()
                 updated_rects.extend(self.map.select_territory(self.selected_territory))
-            elif self.cube_placements[self.selected_cube] == Player.CubePlacement.TERRITORY:
-                self.cube_placements[self.selected_cube] = Player.CubePlacement.TERRITORY_HOLDING
+            elif self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY:
+                self.cube_placements[self.selected_cube] = Player.CubeRegion.TERRITORY_HOLDING
                 updated_rects = self.remove_from_territory()
                 updated_rects.extend(self.map.select_territory(self.selected_territory))
 
 
         elif event.key == pygame.K_DOWN:
-            if self.cube_placements[self.selected_cube] == Player.CubePlacement.CACHE:
-                self.cube_placements[self.selected_cube] = Player.CubePlacement.COURT
+            if self.cube_placements[self.selected_cube] == Player.CubeRegion.CACHE:
+                self.cube_placements[self.selected_cube] = Player.CubeRegion.COURT
                 updated_rects = self.player_render.add_to_court(self.selected_cube)
 
-        # self.player_render.cache.draw_cubes()
         return updated_rects
 
     def get_order_of_selection(self):
@@ -178,7 +177,7 @@ class Player():
         if not prev_color_id:
             prev_color_id = self.cache_list[temp_selected_cube]
         # then check the court
-        if self.search_mode == Player.CubePlacement.COURT:
+        if self.search_mode == Player.CubeRegion.COURT:
             range_to_search = range(temp_selected_cube, 0, -1)
         else:
             range_to_search = range(temp_selected_cube, len(self.cache_list), 1)
@@ -192,14 +191,14 @@ class Player():
         return self._right_cube(temp_selected_cube, -1) # recursion!!!
 
     def right_search_mode(self):
-        if self.search_mode == Player.CubePlacement.CACHE:
-            self.search_mode = Player.CubePlacement.COURT
+        if self.search_mode == Player.CubeRegion.CACHE:
+            self.search_mode = Player.CubeRegion.COURT
             return self.cache_size - 1
-        elif self.search_mode == Player.CubePlacement.COURT:
-            self.search_mode = Player.CubePlacement.TERRITORY
+        elif self.search_mode == Player.CubeRegion.COURT:
+            self.search_mode = Player.CubeRegion.TERRITORY
             return 0
-        elif self.search_mode == Player.CubePlacement.TERRITORY:
-            self.search_mode = Player.CubePlacement.CACHE
+        elif self.search_mode == Player.CubeRegion.TERRITORY:
+            self.search_mode = Player.CubeRegion.CACHE
             return 0
             #TODO: if placement limit has been reached, don't let search_mode go back to cache
 
@@ -213,10 +212,10 @@ class Player():
     #     return self._left_cube(-1)
 
     # def left_search_mode(self):
-    #     if self.search_mode == Player.CubePlacement.CACHE:
-    #         self.search_mode = Player.CubePlacement.TERRITORY
-    #     elif self.search_mode == Player.CubePlacement.TERRITORY:
-    #         self.search_mode = Player.CubePlacement.COURT
-    #     elif self.search_mode == Player.CubePlacement.COURT:
-    #         self.search_mode = Player.CubePlacement.CACHE
+    #     if self.search_mode == Player.CubeRegion.CACHE:
+    #         self.search_mode = Player.CubeRegion.TERRITORY
+    #     elif self.search_mode == Player.CubeRegion.TERRITORY:
+    #         self.search_mode = Player.CubeRegion.COURT
+    #     elif self.search_mode == Player.CubeRegion.COURT:
+    #         self.search_mode = Player.CubeRegion.CACHE
     #         #TODO: if placement limit has been reached, don't let search_mode go back to cache
