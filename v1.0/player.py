@@ -44,41 +44,43 @@ class Player():
     def select_territory(self, event:pygame.event.Event): # -> tuple[pygame.sprite.Group, list[any]]:
         updated_rects = None
 
-        if event.key == pygame.K_LEFT:
+        if event.key == pygame.K_LEFT: # select left
             self.selected_territory = (self.selected_territory - 1) % self.n_territories
             updated_rects = self.map.select_territory(self.selected_territory)
 
-        elif event.key == pygame.K_RIGHT:
+        elif event.key == pygame.K_RIGHT: # select right
             self.selected_territory = (self.selected_territory + 1) % self.n_territories
             updated_rects = self.map.select_territory(self.selected_territory)
 
-        elif event.key == pygame.K_UP:
+        elif event.key == pygame.K_UP: # return to cache
             if self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY_HOLDING:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.CACHE
                 updated_rects = self.return_to_cache()
 
-        elif event.key == pygame.K_DOWN:
+        elif event.key == pygame.K_DOWN: # add to territory
             if self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY_HOLDING:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.TERRITORY
                 updated_rects = self.add_to_territory()
-                self.map.de_select_territory(self.selected_territory)
-                self.selected_cube = self.right_cube(-1) # reset to the first cube in the cache
-                if self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY:
-                    self.selected_territory = self.terr_list[self.selected_cube]
-                updated_rects = self.player_render.select_cube(self.selected_cube)
 
-        return updated_rects # returns a group
+        return updated_rects
 
     def add_to_territory(self):
         """Adds the currently selected cube to the currently selected territory. Called when the down arrow is pressed
         during territory selection, when a cube is in the holding position.
         The next selection mode is CUBES, and the search mode resets to CACHE
         """
-        color_id = self.player_render.cache_list[self.selected_cube]
-        new_xy = self.map.add_to_territory(self.selected_territory, self.selected_cube, color_id)
-        updated_rects = self.move_selected_cube_to(new_xy)
+        # update self.terr_list
         self.terr_list[self.selected_cube] = self.selected_territory
 
+        # add cube to territory
+        color_id = self.player_render.cache_list[self.selected_cube]
+        new_xy = self.map.add_to_territory(self.selected_territory, self.selected_cube, color_id) # returns the coordinates of the new cube
+        updated_rects = self.move_selected_cube_to(new_xy)
+
+        # deselect the territory and
+        updated_rects.append(self.map.de_select_territory(self.selected_territory))
+
+        # update selection mode
         self.selection_mode = Player.SelectionType.CUBES
         self.search_mode = Player.CubeRegion.CACHE
 
