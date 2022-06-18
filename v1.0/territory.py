@@ -104,17 +104,18 @@ class Territory(pygame.sprite.Sprite):
 
 
     # Each Territory object contains two lists of cube locations.
-    #     self.cube_list is a permanent list of all the colored cubes being stored on the Territory. It is important to
-    # store these permanently, so that the orders of the colors do not change each time the map is refreshed. At the
-    # start of each turn, the number of cubes in the Territory is given by self.permanent_cubes. The indices of
-    # self.cube_list to be updated are given by new_idx = self.permanent_cubes + idx, where idx is the index of the cubes
-    # being added this turn. Cubes in self.cube_list[:self.permanent_cubes] will never be updated.
-    #     self.temp_cube_list is the list of cubes in self.cube_list[self.permanent_cubes:], which have been added and
-    # may be updated on the current turn.
-
-    # def temp_list_to_cube_list(self, idx):
-    #     new_idx = self.permanent_cubes + idx
-    #     return new_idx
+    #     self.cube_list is a permanent list of the color_ids of the cubes being stored on the Territory. It is important to
+    # store these permanently, so that the orders of the colors do not change each time the map is refreshed. The actual
+    # cubes on the map are placed according to self.placement_order[idx], where idx is the index of the cube in self.cube_list.
+    # When a cube is removed from the territory, the color_id at the index of the cube is replaced with None. When a new cube
+    # is added to the territory, it searches for None elements in self.cube_list and fills those in first. If there are no
+    # elements that are None, it appends the new cube's color_id to the end of self.cube_list.
+    #     self.temp_cube_list is the list of cubes which have been added and may be updated on the current turn. The index is
+    # based on the cube_id of the Cache cubes being placed. Therefore, self.temp_cube_list has 7 elements in a 2 or 4 player
+    # game and 9 elements in a 3 player game, all initialized to None. When one of the Cache cubes is added, the element at
+    # cube_id is set to the index in self.cube_list where the cube was placed (filling in Nones first, as described above).
+    # This allows the locations of each added cube to be tracked and also for their new positions to be specified according to
+    # self.placement_order[idx], where idx = self.temp_cube_list[cube_id].
 
     def add_cube(self, cube_id, color_id):
         found_empty_slot = False # initialize flag
