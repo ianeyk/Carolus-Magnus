@@ -29,9 +29,9 @@ class Territory(pygame.sprite.Sprite):
         self.cube_list = [starting_cube]
         self.placement_order = list(range(24))
         # random.shuffle(self.placement_order)
-        self.permanent_cubes = 1 #TODO: update the number of permanent_cubes at the start of each round based on the game state
-        self.temp_cube_list = []
-        self.len_of_list = len(self.temp_cube_list)
+        # self.permanent_cubes = 1 #TODO: update the number of permanent_cubes at the start of each round based on the game state
+        self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
+        # self.len_of_list = len(self.temp_cube_list)
 
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
@@ -112,27 +112,29 @@ class Territory(pygame.sprite.Sprite):
     #     self.temp_cube_list is the list of cubes in self.cube_list[self.permanent_cubes:], which have been added and
     # may be updated on the current turn.
 
-    def temp_list_to_cube_list(self, idx):
-        new_idx = self.permanent_cubes + idx
-        return new_idx
+    # def temp_list_to_cube_list(self, idx):
+    #     new_idx = self.permanent_cubes + idx
+    #     return new_idx
 
     def add_cube(self, cube_id, color_id):
-
-        for idx, existing_color_id in enumerate(self.temp_cube_list):
+        found_empty_slot = False # initialize flag
+        for idx, existing_color_id in enumerate(self.cube_list):
             if existing_color_id is None: # search for empty slots first before appending to the end
-                self.temp_cube_list[idx] = cube_id
-                new_idx = self.permanent_cubes + idx
-                self.cube_list[new_idx] = color_id
-                print(self.temp_cube_list)
-                return self.coords_of_cube(self.placement_order[new_idx])
+                found_empty_slot = True
+                break # keeps the value of idx and uses it below
 
-        self.temp_cube_list.append(cube_id)
-        self.cube_list.append(color_id)
+        if not found_empty_slot:
+            idx = len(self.cube_list) # the index of the subsequently appended cube (to avoid an off by -1 error)
+            self.cube_list.append(color_id) # needed to make the list one longer; will be redfined
+        else:
+            self.cube_list[idx] = color_id
+        # in any case:
+        self.temp_cube_list[cube_id] = idx
         print(self.temp_cube_list)
-        return self.coords_of_cube(self.placement_order[self.permanent_cubes + len(self.temp_cube_list) - 1])
+        return self.coords_of_cube(self.placement_order[idx])
 
     def remove_cube(self, cube_id):
-        idx = self.temp_cube_list.index(cube_id)
-        self.temp_cube_list[idx] = None
-        self.cube_list[self.permanent_cubes + idx] = None
+        idx = self.temp_cube_list[cube_id]
+        self.cube_list[idx] = None
+        self.temp_cube_list[cube_id] = None
         print(self.temp_cube_list)
