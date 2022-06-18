@@ -75,12 +75,19 @@ class Player():
         return updated_rects # returns a group
 
     def add_to_territory(self):
-        new_xy = self.map.add_to_territory(self.selected_territory, self.selected_cube, self.player_render.cache_list[self.selected_cube])
+        """Adds the currently selected cube to the currently selected territory. Called when the down arrow is pressed
+        during territory selection, when a cube is in the holding position.
+        """
+        color_id = self.player_render.cache_list[self.selected_cube]
+        new_xy = self.map.add_to_territory(self.selected_territory, self.selected_cube, color_id)
         updated_rects = self.move_selected_cube_to(new_xy)
         self.terr_list[self.selected_cube] = self.selected_territory
         return updated_rects
 
     def remove_from_territory(self):
+        """Moves the currently selected cube from a territory to holding. Called when the up arrow is pressed during cube
+        selection when the selected cube is on a territory.
+        """
         self.map.remove_from_territory(self.terr_list[self.selected_cube], self.selected_cube) # (self.selected_territory, self.selected_cube)
         self.terr_list[self.selected_cube] = None
         return self.move_to_holding()

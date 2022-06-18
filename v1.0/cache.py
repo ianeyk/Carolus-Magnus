@@ -11,6 +11,7 @@ class Cache():
         self.cache_list = cache_list # list of 7 color_ids
         self.nCubes = len(self.cache_list)
         self.size = size
+        self.prev_selected_cube = 0
 
         self.cube_locs = self.generate_cube_locs()
         self.cube_list = [] # list of cube objects for highlighting purposes
@@ -32,13 +33,14 @@ class Cache():
         return locs
 
     def select_cube(self, which_cube): # which_cube is an index from 0 to 6, indicating which cube in the cache has been selected
-        updated_rects = self.deselect_all() # unhighlight all cubes
+        # updated_rects = self.deselect_all() # unhighlight all cubes
+        updated_rects = self.cube_list[self.prev_selected_cube].un_highlight() # unhighlight the previous cube
         updated_rects.extend(self.cube_list[which_cube].highlight()) # then highlight the interesting cube
+        self.prev_selected_cube = which_cube
         return updated_rects # returns the rect containing the highlighted cube, for pygame.display.update() in the main loop
 
     def deselect_all(self):
         updated_rects = []
         for other_cube in self.cube_list:
-            updated_rect = other_cube.un_highlight()
-            updated_rects.extend(updated_rect)
+            updated_rects.extend(other_cube.un_highlight())
         return updated_rects
