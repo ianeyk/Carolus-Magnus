@@ -9,32 +9,25 @@ class Cache():
         self.x = x
         self.y = y
         self.cache_list = cache_list # list of 7 color_ids
+        self.nCubes = len(self.cache_list)
         self.size = size
+
+        self.cube_locs = self.generate_cube_locs()
         self.cube_list = [] # list of cube objects for highlighting purposes
-
-
-        locs = self.cube_locs(spacing = Cache.spacing)
-
-        for loc, color_id in zip(locs, self.cache_list):
-            cube = Cube(*self.coords_of_cube(loc), color_id, png_path = Cube.cache_pngs[color_id])
+        for loc, color_id in zip(self.cube_locs, self.cache_list):
+            cube = Cube(*loc, color_id, png_path = Cube.cache_pngs[color_id])
             self.cube_list.append(cube)
             #TODO: give each cube that is generated as part of the cache a slightly different PNG (highlighted or such)
-
-    def coords_of_cube(self, loc):
-        return (self.x + loc[0], self.y + loc[1])
 
     def draw_cubes(self, group):
         for cube in self.cube_list:
             cube.add(group)
 
-    def cube_locs(self, spacing = 1.5):
-        nCubes = len(self.cache_list)
-        if not spacing:
-            spacing = Cache.spacing
+    def generate_cube_locs(self):
         # jitter_range = (-0.4, 0.2)
         locs = []
-        for pos in range(nCubes):
-            locs.append(((pos - nCubes // 2) * Cube.size * spacing, Cube.size / 2))
+        for pos in range(self.nCubes):
+            locs.append((self.x + (pos - self.nCubes // 2) * Cube.size * Cache.spacing, self.y + Cube.size / 2))
             # locs.append(((pos - nCubes // 2) * Cube.size * spacing + uniform(*jitter_range) * Cube.size, Cube.size / 2 + uniform(*jitter_range) * Cube.size))
         return locs
 
