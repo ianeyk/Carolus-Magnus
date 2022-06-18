@@ -102,6 +102,20 @@ class Territory(pygame.sprite.Sprite):
         self.set_image(png_image)
         return (prev_rect.x, prev_rect.y, prev_rect.w, prev_rect.h)
 
+
+    # Each Territory object contains two lists of cube locations.
+    #     self.cube_list is a permanent list of all the colored cubes being stored on the Territory. It is important to
+    # store these permanently, so that the orders of the colors do not change each time the map is refreshed. At the
+    # start of each turn, the number of cubes in the Territory is given by self.permanent_cubes. The indices of
+    # self.cube_list to be updated are given by new_idx = self.permanent_cubes + idx, where idx is the index of the cubes
+    # being added this turn. Cubes in self.cube_list[:self.permanent_cubes] will never be updated.
+    #     self.temp_cube_list is the list of cubes in self.cube_list[self.permanent_cubes:], which have been added and
+    # may be updated on the current turn.
+
+    def temp_list_to_cube_list(self, idx):
+        new_idx = self.permanent_cubes + idx
+        return new_idx
+
     def add_cube(self, cube_id, color_id):
 
         for idx, existing_color_id in enumerate(self.temp_cube_list):

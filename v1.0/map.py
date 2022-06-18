@@ -60,8 +60,10 @@ class Map(pygame.sprite.Sprite):
             updated_rects.append(terr.un_highlight())
         return updated_rects
 
+    # pass-through function
     def add_to_territory(self, which_terr, cube_id, color_id):
         return self.territories[which_terr].add_cube(cube_id, color_id)
 
+    # pass-through function
     def remove_from_territory(self, which_terr, cube_id):
         return self.territories[which_terr].remove_cube(cube_id)
