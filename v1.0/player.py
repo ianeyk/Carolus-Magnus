@@ -74,17 +74,9 @@ class Player():
 
         return updated_rects # returns a group
 
-    def move_to_holding(self):
-        self.selection_mode = Player.SelectionType.TERRITORIES
-
-        new_xy = self.player_render.territory_holding_location
-        updated_rects = self.player_render.cache.cube_list[self.selected_cube].update_pos(new_xy)
-        updated_rects.extend(self.player_render.select_cube(self.selected_cube))
-        return updated_rects
-
     def add_to_territory(self):
         new_xy = self.map.add_to_territory(self.selected_territory, self.selected_cube, self.player_render.cache_list[self.selected_cube])
-        updated_rects = self.player_render.cache.cube_list[self.selected_cube].update_pos(new_xy)
+        updated_rects = self.move_selected_cube_to(new_xy)
         updated_rects.extend(self.player_render.select_cube(self.selected_cube))
         self.terr_list[self.selected_cube] = self.selected_territory
         return updated_rects
@@ -96,11 +88,14 @@ class Player():
 
     def return_to_cache(self):
         new_xy = self.player_render.cache.coords_of_cube(self.player_render.cache.cube_locs()[self.selected_cube])
-        updated_rects = self.player_render.cache.cube_list[self.selected_cube].update_pos(new_xy)
+        updated_rects = self.move_selected_cube_to(new_xy)
         updated_rects.extend(self.player_render.select_cube(self.selected_cube))
         self.terr_list[self.selected_cube] = None
         return updated_rects
 
+    def move_selected_cube_to(self, new_xy):
+        """Helper function to update the position of a selected cube, returning the rects at the old and new locations."""
+        return self.player_render.cache.cube_list[self.selected_cube].update_pos(new_xy)
 
     def select_cube(self, event:pygame.event.Event): # -> tuple[pygame.sprite.Group, list[any]]:
         updated_rects = None
@@ -133,6 +128,20 @@ class Player():
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.COURT
                 updated_rects = self.player_render.add_to_court(self.selected_cube)
 
+        return updated_rects
+
+    def move_to_holding(self):
+        """Moves the currently selected cube to the holding location, which means the cube is being primed to be placed on a territory.
+        A cube is moved to the holding position when it is selected to do so from the Cache (up arrow while selected in cache) or when
+        it is removed from a territory (up arrow while on territory). While in holding, the selection mode is always TERRITORIES.
+        While in holding, if the down arrow is pressed, it places the cube on the currently selected territory.
+        While in holding, if the up arrow is pressed again, it returns the cube to the cache.
+        """
+        self.selection_mode = Player.SelectionType.TERRITORIES
+
+        new_xy = self.player_render.territory_holding_location # predefined location of the cube in holding
+        updated_rects = self.move_selected_cube_to(new_xy)
+        updated_rects.extend(self.player_render.select_cube(self.selected_cube))
         return updated_rects
 
     def get_order_of_selection(self):
