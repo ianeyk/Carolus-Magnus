@@ -23,17 +23,9 @@ class Cache():
     def coords_of_cube(self, loc):
         return (self.x + loc[0], self.y + loc[1])
 
-    def draw_cubes(self, group = None):
-        if not group:
-            if len(self.cube_list[0].groups()) > 0:
-                group = self.cube_list[0].groups()[0]
-            else:
-                group = pygame.sprite.Group()
-        # if not group:
-        #     group = pygame.sprite.Group()
+    def draw_cubes(self, group):
         for cube in self.cube_list:
             cube.add(group)
-        return group
 
     def cube_locs(self, spacing = 1.5):
         nCubes = len(self.cache_list)

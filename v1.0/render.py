@@ -34,12 +34,9 @@ class Render(pygame.sprite.Sprite):
         self.map = Map(self.width / 2, self.height / 2, [0] * 15)
         self.terr = Territory(self.width / 2, self.height / 2, 0, 4)
 
-    def draw(self):
-        group = pygame.sprite.Group()
+    def draw(self, group):
         self.add(group)
         self.map.draw(group)
         self.terr.draw(group)
         for player in self.players:
             player.draw(group)
-        return group
-pass

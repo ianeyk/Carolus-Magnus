@@ -33,7 +33,7 @@ class Player():
     def select(self, event:pygame.event.Event):
         action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
-            return None, None
+            return None
 
         if self.selection_mode == Player.SelectionMode.CUBES:
             return self.select_cube(event)
@@ -71,7 +71,8 @@ class Player():
                     self.selected_territory = self.terr_list[self.selected_cube]
                 updated_rects = self.player_render.select_cube(self.selected_cube)
 
-        return self.player_render.cache.draw_cubes(), updated_rects # returns a group
+        # self.player_render.cache.draw_cubes()
+        return updated_rects # returns a group
 
     def move_to_holding(self):
         self.selection_mode = Player.SelectionMode.TERRITORIES
@@ -132,7 +133,8 @@ class Player():
                 self.cube_placements[self.selected_cube] = Player.CubePlacement.COURT
                 updated_rects = self.player_render.add_to_court(self.selected_cube)
 
-        return self.player_render.cache.draw_cubes(), updated_rects # returns a group
+        # self.player_render.cache.draw_cubes()
+        return updated_rects
 
     def get_order_of_selection(self):
         # temp_selected_cube = self.selected_cube

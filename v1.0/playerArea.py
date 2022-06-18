@@ -36,21 +36,14 @@ class PlayerArea(pygame.sprite.Sprite):
             section_y = self.y + PlayerArea.size[1] / 2 - CourtSection.size[1] - PlayerArea.small_offset_from_edges
             self.court_sections.append(CourtSection(section_x, section_y, color_id, cube_count))
 
-    def draw(self, group = None):
-        if not group:
-            if len(self.groups()) > 0:
-                group = self.groups()[0]
-            else:
-                group = pygame.sprite.Group()
+    def draw(self, group):
         self.add(group)
         self.draw_court(group)
         self.cache.draw_cubes(group)
-        return group
 
     def draw_court(self, group):
         for court_section in self.court_sections:
             court_section.draw(group)
-        return group
 
     def select_cube(self, which_cube):
         return self.cache.select_cube(which_cube)
