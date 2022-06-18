@@ -14,10 +14,7 @@ class Territory(pygame.sprite.Sprite):
     spacing = 1.2
     side_length = Cube.size * spacing * 1.8
     cube_dist = side_length * 2 / 3
-
     size = (3 * side_length * math.sqrt(3), side_length * 3.5)
-    # small_offset_from_edges = 18
-    # large_offset_from_edges = 24
 
     def __init__(self, x, y, angle, starting_cube, terr_type = 0):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
@@ -28,10 +25,8 @@ class Territory(pygame.sprite.Sprite):
         self.terr_type = terr_type
         self.cube_list = [starting_cube]
         self.placement_order = list(range(24))
-        # random.shuffle(self.placement_order)
-        # self.permanent_cubes = 1 #TODO: update the number of permanent_cubes at the start of each round based on the game state
+        random.shuffle(self.placement_order)
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
-        # self.len_of_list = len(self.temp_cube_list)
 
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
@@ -44,10 +39,8 @@ class Territory(pygame.sprite.Sprite):
         assert(loc <= 24) # fails for more cubes on one hex
         which_hex = loc // 6
         intra_hex_loc = loc % 6
-        un_rotated = self.intra_hex_coords(*self.hex_coords(which_hex), intra_hex_loc) # returns x, y coordinates of the cube location
-        rotated = un_rotated
-        return rotated
-        # return (self.x + loc[0], self.y + loc[1] + Territory.cube_vertical_offset)
+        rotated_coords = self.intra_hex_coords(*self.hex_coords(which_hex), intra_hex_loc) # returns x, y coordinates of the cube location
+        return rotated_coords
 
     def intra_hex_coords(self, center_x, center_y, pos): # pos starts at the top and moves clockwise
         radius = Cube.size * Territory.spacing
@@ -83,8 +76,6 @@ class Territory(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image, math.degrees(self.angle))
 
         self.rect = self.image.get_rect(center = (self.x, self.y))
-        # self.rect = (x - Territory.size[0] / 2, y - Territory.size[1] / 2, *Territory.size)
-
 
     def highlight(self):
         highlighted_image = pygame.image.load(Territory.highlighted_pngs[self.terr_type])
@@ -100,17 +91,19 @@ class Territory(pygame.sprite.Sprite):
 
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
-        return (prev_rect.x, prev_rect.y, prev_rect.w, prev_rect.h)
+        return prev_rect
 
 
     # Each Territory object contains two lists of cube locations.
-    #     self.cube_list is a permanent list of the color_ids of the cubes being stored on the Territory. It is important to
+    #
+    # self.cube_list is a permanent list of the color_ids of the cubes being stored on the Territory. It is important to
     # store these permanently, so that the orders of the colors do not change each time the map is refreshed. The actual
     # cubes on the map are placed according to self.placement_order[idx], where idx is the index of the cube in self.cube_list.
     # When a cube is removed from the territory, the color_id at the index of the cube is replaced with None. When a new cube
     # is added to the territory, it searches for None elements in self.cube_list and fills those in first. If there are no
     # elements that are None, it appends the new cube's color_id to the end of self.cube_list.
-    #     self.temp_cube_list is the list of cubes which have been added and may be updated on the current turn. The index is
+    #
+    # self.temp_cube_list is the list of cubes which have been added and may be updated on the current turn. The index is
     # based on the cube_id of the Cache cubes being placed. Therefore, self.temp_cube_list has 7 elements in a 2 or 4 player
     # game and 9 elements in a 3 player game, all initialized to None. When one of the Cache cubes is added, the element at
     # cube_id is set to the index in self.cube_list where the cube was placed (filling in Nones first, as described above).
@@ -131,11 +124,11 @@ class Territory(pygame.sprite.Sprite):
             self.cube_list[idx] = color_id
         # in any case:
         self.temp_cube_list[cube_id] = idx
-        print(self.temp_cube_list)
+        # print(self.temp_cube_list)
         return self.coords_of_cube(self.placement_order[idx])
 
     def remove_cube(self, cube_id):
         idx = self.temp_cube_list[cube_id]
         self.cube_list[idx] = None
         self.temp_cube_list[cube_id] = None
-        print(self.temp_cube_list)
+        # print(self.temp_cube_list)
