@@ -90,6 +90,8 @@ class Player():
         """Moves the currently selected cube from a territory to holding. Called when the up arrow is pressed during cube
         selection when the selected cube is on a territory.
         """
+        # after going to holding, the selected and highlighted territory will be the territory where the cube just came from
+        self.selected_territory = self.terr_list[self.selected_cube]
         self.map.remove_from_territory(self.terr_list[self.selected_cube], self.selected_cube) # (self.selected_territory, self.selected_cube)
         self.terr_list[self.selected_cube] = None
         return self.move_to_holding()
@@ -115,30 +117,31 @@ class Player():
     def select_cube(self, event:pygame.event.Event): # -> tuple[pygame.sprite.Group, list[any]]:
         updated_rects = None
 
-        if event.key == pygame.K_LEFT:
-            # bolt on a thing that says to go to the next cube of a different color
-            self.selected_cube = self.left_cube(self.cache_list[self.selected_cube])
+        if event.key == pygame.K_LEFT: # select left
+            self.selected_cube = self.left_cube()
             updated_rects = self.player_render.select_cube(self.selected_cube)
 
-        elif event.key == pygame.K_RIGHT:
-            self.selected_cube = self.right_cube(self.cache_list[self.selected_cube])
+        elif event.key == pygame.K_RIGHT: # select right
+            self.selected_cube = self.right_cube()
             updated_rects = self.player_render.select_cube(self.selected_cube)
 
         elif event.key == pygame.K_UP:
+            # if in COURT: remove from court
             if self.cube_placements[self.selected_cube] == Player.CubeRegion.COURT:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.CACHE
                 updated_rects = self.player_render.remove_from_court(self.selected_cube)
+
+            # if in CACHE: move to holding
             elif self.cube_placements[self.selected_cube] == Player.CubeRegion.CACHE:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.TERRITORY_HOLDING
                 updated_rects = self.move_to_holding()
-                updated_rects.extend(self.map.select_territory(self.selected_territory))
+
+            # if in TERRITORY: remove from territory
             elif self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.TERRITORY_HOLDING
                 updated_rects = self.remove_from_territory()
-                updated_rects.extend(self.map.select_territory(self.selected_territory))
 
-
-        elif event.key == pygame.K_DOWN:
+        elif event.key == pygame.K_DOWN: # add to court (adding to territories only happens in select_territory())
             if self.cube_placements[self.selected_cube] == Player.CubeRegion.CACHE:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.COURT
                 updated_rects = self.player_render.add_to_court(self.selected_cube)
@@ -152,10 +155,15 @@ class Player():
         While in holding, if the down arrow is pressed, it places the cube on the currently selected territory.
         While in holding, if the up arrow is pressed again, it returns the cube to the cache.
         """
-        self.selection_mode = Player.SelectionType.TERRITORIES
-
         new_xy = self.player_render.territory_holding_location # predefined location of the cube in holding
         updated_rects = self.move_selected_cube_to(new_xy)
+
+        # highlight the selected territory
+        updated_rects.extend(self.map.select_territory(self.selected_territory))
+
+        # start the selection process
+        self.selection_mode = Player.SelectionType.TERRITORIES
+
         return updated_rects
 
     def move_selected_cube_to(self, new_xy):
