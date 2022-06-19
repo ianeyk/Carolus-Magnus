@@ -9,7 +9,7 @@ class Selectable(pygame.sprite.Sprite):
         3:"./sprites/cubes/yellow_cube1.png",
         4:"./sprites/cubes/pink_cube1.png"
     }
-    size = 15
+    size = (15, 15)
     highlight_scale_factor = 1.5
 
     def __init__(self, x, y, ordinal_id):

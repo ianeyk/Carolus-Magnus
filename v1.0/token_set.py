@@ -44,7 +44,7 @@ class TokenSet(): # Turn Token
         self.token_locs = self.generate_token_locs()
         self.token_list = [] # list of cube objects for highlighting purposes
         for loc, color_id in zip(self.token_locs, self.token_list):
-            token = Token(*loc, color_id, png_path_dict = png_path_dict)
+            token = Token(*loc, color_id)
             self.token_list.append(token)
 
     def draw_cubes(self, group):

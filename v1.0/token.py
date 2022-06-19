@@ -8,7 +8,7 @@ class WhiteToken(Selectable):
         3:"./sprites/tokens/white_token04.png",
         4:"./sprites/tokens/white_token05.png",
     }
-    size = 30
+    size = (30, 30)
     highlight_scale_factor = 1.5
 
 class BlackToken(WhiteToken):

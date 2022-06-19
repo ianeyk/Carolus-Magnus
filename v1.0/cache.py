@@ -1,5 +1,5 @@
 import pygame
-from cube import Cube
+from cube import CacheCube, Cube
 
 class Cache():
 
@@ -16,7 +16,7 @@ class Cache():
         self.cube_locs = self.generate_cube_locs()
         self.cube_list = [] # list of cube objects for highlighting purposes
         for loc, color_id in zip(self.cube_locs, self.cache_list):
-            cube = Cube(*loc, color_id, png_path_dict = Cube.cache_pngs)
+            cube = CacheCube(*loc, color_id)
             self.cube_list.append(cube)
 
     def draw_cubes(self, group):
@@ -27,7 +27,7 @@ class Cache():
         # jitter_range = (-0.4, 0.2)
         locs = []
         for pos in range(self.nCubes):
-            locs.append((self.x + (pos - self.nCubes // 2) * Cube.size * Cache.spacing, self.y + Cube.size / 2))
+            locs.append((self.x + (pos - self.nCubes // 2) * Cube.size[0] * Cache.spacing, self.y + Cube.size[1] / 2))
             # locs.append(((pos - nCubes // 2) * Cube.size * spacing + uniform(*jitter_range) * Cube.size, Cube.size / 2 + uniform(*jitter_range) * Cube.size))
         return locs
 

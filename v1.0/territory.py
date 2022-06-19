@@ -12,7 +12,7 @@ class Territory(pygame.sprite.Sprite):
     }
 
     spacing = 1.2
-    side_length = Cube.size * spacing * 1.8
+    side_length = Cube.size[0] * spacing * 1.8
     cube_dist = side_length * 2 / 3
     size = (3 * side_length * math.sqrt(3), side_length * 3.5)
 
@@ -43,7 +43,7 @@ class Territory(pygame.sprite.Sprite):
         return rotated_coords
 
     def intra_hex_coords(self, center_x, center_y, pos): # pos starts at the top and moves clockwise
-        radius = Cube.size * Territory.spacing
+        radius = Cube.size[0] * Territory.spacing
         cube_angle = math.pi - math.pi / 6 + math.pi * 2 / 6 * pos - self.angle
         intra_hex_x = center_x + radius * math.cos(cube_angle)
         intra_hex_y = center_y + radius * math.sin(cube_angle)

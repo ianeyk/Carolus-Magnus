@@ -12,7 +12,7 @@ class CourtSection(pygame.sprite.Sprite):
     }
     cube_vertical_offset = 38
     spacing = 1.2
-    size = (math.floor(2 * Cube.size * spacing + 10), math.floor(9 * Cube.size * spacing + cube_vertical_offset - 7))
+    size = (math.floor(2 * Cube.size[0] * spacing + 10), math.floor(9 * Cube.size[1] * spacing + cube_vertical_offset - 7))
 
     def __init__(self, x, y, color_id, num_cubes):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
@@ -46,7 +46,7 @@ class CourtSection(pygame.sprite.Sprite):
     def cube_locs(self, spacing = 1.2):
         locs = []
         for pos in range(9):
-            locs.append((-Cube.size / 2 * spacing, pos * Cube.size * spacing))
+            locs.append((-Cube.size[0] / 2 * spacing, pos * Cube.size[1] * spacing))
         for pos in range(9):
-            locs.append(( Cube.size / 2 * spacing, pos * Cube.size * spacing))
+            locs.append(( Cube.size[0] / 2 * spacing, pos * Cube.size[1] * spacing))
         return locs
