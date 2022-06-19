@@ -1,7 +1,8 @@
 import pygame
 import math
-from cache import Cache
 from courtSection import CourtSection
+from selector import Selector
+from cube import CacheCube
 
 class PlayerArea(pygame.sprite.Sprite):
     """Draws a complete Player Area, including the court and the cache."""
@@ -22,7 +23,7 @@ class PlayerArea(pygame.sprite.Sprite):
         self.team = team
         self.cube_counts = cube_counts
         self.cache_list = cache_list
-        self.cache = Cache(x, y - PlayerArea.size[1] / 2 + PlayerArea.large_offset_from_edges, PlayerArea.size, cache_list)
+        self.cache = Selector(CacheCube, x, y - PlayerArea.size[1] / 2 + PlayerArea.large_offset_from_edges, PlayerArea.size, cache_list)
         self.territory_holding_location = (x, y - PlayerArea.size[1] / 2 - PlayerArea.large_offset_from_edges)
 
         png_image = pygame.image.load(PlayerArea.pngs[team])

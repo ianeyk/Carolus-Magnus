@@ -1,32 +1,7 @@
 import pygame
-from cube import Cube
+from token import WhiteToken, BlackToken, GreyToken
 
-class Token(Cube):
-    white_pngs = {
-        0:"./sprites/tokens/white_token01.png",
-        1:"./sprites/tokens/white_token02.png",
-        2:"./sprites/tokens/white_token03.png",
-        3:"./sprites/tokens/white_token04.png",
-        4:"./sprites/tokens/white_token05.png",
-    }
-    black_pngs = {
-        0:"./sprites/tokens/black_token01.png",
-        1:"./sprites/tokens/black_token02.png",
-        2:"./sprites/tokens/black_token03.png",
-        3:"./sprites/tokens/black_token04.png",
-        4:"./sprites/tokens/black_token05.png",
-    }
-    grey_pngs = {
-        0:"./sprites/tokens/grey_token01.png",
-        1:"./sprites/tokens/grey_token02.png",
-        2:"./sprites/tokens/grey_token03.png",
-        3:"./sprites/tokens/grey_token04.png",
-        4:"./sprites/tokens/grey_token05.png",
-    }
-    size = 30
-    highlight_scale_factor = 1.5
-
-class TokenSet(): # Turn Token
+class TokenSet(Selector): # Turn Token
 
     spacing = 1.5
 
@@ -48,8 +23,8 @@ class TokenSet(): # Turn Token
             self.token_list.append(token)
 
     def draw_cubes(self, group):
-        for cube in self.token_list:
-            cube.add(group)
+        for token in self.token_list:
+            token.add(group)
 
     def generate_token_locs(self):
         # jitter_range = (-0.4, 0.2)
