@@ -9,7 +9,7 @@ class Cube(Selectable):
         3:"./sprites/cubes/yellow_cube1.png",
         4:"./sprites/cubes/pink_cube1.png"
     }
-    size = (15, 15) # 13.4 # 12 # 17
+    size = 15 # 13.4 # 12 # 17
     highlight_scale_factor = 1.5
 
 class CacheCube(Cube):
