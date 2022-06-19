@@ -1,6 +1,10 @@
 from selectable import Selectable
 
-class WhiteToken(Selectable):
+class Token(Selectable):
+    size = (30, 30)
+    highlight_scale_factor = 1.5
+
+class WhiteToken(Token):
     pngs = {
         0:"./sprites/tokens/white_token01.png",
         1:"./sprites/tokens/white_token02.png",
@@ -8,10 +12,8 @@ class WhiteToken(Selectable):
         3:"./sprites/tokens/white_token04.png",
         4:"./sprites/tokens/white_token05.png",
     }
-    size = (30, 30)
-    highlight_scale_factor = 1.5
 
-class BlackToken(WhiteToken):
+class BlackToken(Token):
     pngs = {
         0:"./sprites/tokens/black_token01.png",
         1:"./sprites/tokens/black_token02.png",
@@ -20,7 +22,7 @@ class BlackToken(WhiteToken):
         4:"./sprites/tokens/black_token05.png",
     }
 
-class GreyToken(WhiteToken):
+class GreyToken(Token):
    pngs = {
         0:"./sprites/tokens/grey_token01.png",
         1:"./sprites/tokens/grey_token02.png",

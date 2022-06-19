@@ -2,6 +2,7 @@ import pygame
 import math
 from cache import Cache
 from courtSection import CourtSection
+from token_set import TokenSet
 
 class PlayerArea(pygame.sprite.Sprite):
     """Draws a complete Player Area, including the court and the cache."""
@@ -29,6 +30,9 @@ class PlayerArea(pygame.sprite.Sprite):
         self.image = pygame.transform.smoothscale(png_image, PlayerArea.size)
         self.rect = (x - PlayerArea.size[0] / 2, y - PlayerArea.size[1] / 2, *PlayerArea.size)
 
+        self.token_set = TokenSet(self.team, x, y + PlayerArea.size[1] / 2 + PlayerArea.small_offset_from_edges, PlayerArea.size, list(range(5)))
+        # self.token_set = TokenSet(self.team, 100, 100, PlayerArea.size, list(range(1, 5)))
+
         self.court_sections = []
         section_spacing = 1.1
         for color_id, cube_count in enumerate(self.cube_counts):
@@ -40,6 +44,7 @@ class PlayerArea(pygame.sprite.Sprite):
         self.add(group)
         self.draw_court(group)
         self.cache.draw_cubes(group)
+        self.token_set.draw(group)
 
     def draw_court(self, group):
         for court_section in self.court_sections:
@@ -56,8 +61,6 @@ class PlayerArea(pygame.sprite.Sprite):
         updated_rects = self.cache.cube_list[which_cube].update_pos(new_xy)
         updated_rects.extend(self.select_cube(which_cube))
         return updated_rects
-        # return self.select_cube(which_cube)
-        # return court_section.rect
 
     def remove_from_court(self, which_cube):
         color_id = self.cache_list[which_cube] # color id of the selected cube
@@ -67,10 +70,3 @@ class PlayerArea(pygame.sprite.Sprite):
         updated_rects = self.cache.cube_list[which_cube].update_pos(new_xy)
         updated_rects.extend(self.select_cube(which_cube))
         return updated_rects
-
-    def add_to_territory(self, which_cube):
-        # new_xy =
-        pass
-
-    def remove_from_territory(self, which_cube):
-        pass
