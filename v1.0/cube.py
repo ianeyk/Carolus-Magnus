@@ -30,15 +30,15 @@ class Cube(pygame.sprite.Sprite):
         self.png_image = pygame.image.load(png_path)
         self.image = self.get_image()
         self.rect = self.get_rect()
-        # self.image = pygame.transform.smoothscale(png_image, (Cube.size, Cube.size))
-        # self.rect = (x - Cube.size / 2, y - Cube.size / 2, Cube.size, Cube.size)
+        # self.image = pygame.transform.smoothscale(png_image, (self.size, self.size))
+        # self.rect = (x - self.size / 2, y - self.size / 2, self.size, self.size)
 
     def get_image(self):
-        size = Cube.size * Cube.highlight_scale_factor if self.highlighted else Cube.size
+        size = self.size * self.highlight_scale_factor if self.highlighted else self.size
         return pygame.transform.smoothscale(self.png_image, (int(size), int(size)))
 
     def get_rect(self):
-        size = Cube.size * Cube.highlight_scale_factor if self.highlighted else Cube.size
+        size = self.size * self.highlight_scale_factor if self.highlighted else self.size
         return (self.x - size / 2, self.y - size / 2, size, size)
 
     def highlight(self):
