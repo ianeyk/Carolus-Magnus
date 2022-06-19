@@ -5,18 +5,18 @@ class Selector():
 
     spacing = 1.5
 
-    def __init__(self, my_class, x, y, size, item_list):
+    def __init__(self, my_class, x, y, size, ordinal_list):
         self.my_class = my_class
         self.x = x
         self.y = y
-        self.item_list = item_list
-        self.nItems = len(self.item_list)
+        self.ordinal_list = ordinal_list
+        self.nItems = len(self.ordinal_list)
         self.size = size
         self.prev_selected_item = 0
 
-        self.item_locs = self.generate_item_locs()
+        self.item_locs = self.generate_locs()
         self.item_list = [] # list of self.my_class objects for highlighting purposes
-        for loc, ordinal_id in zip(self.item_locs, self.item_list):
+        for loc, ordinal_id in zip(self.item_locs, self.ordinal_list):
             item = self.my_class(*loc, ordinal_id)
             self.item_list.append(item)
 
@@ -27,7 +27,7 @@ class Selector():
     def generate_locs(self):
         locs = []
         for pos in range(self.nItems):
-            locs.append((self.x + (pos - self.nItems // 2) * self.my_class.size * self.spacing, self.y + self.my_class.size / 2))
+            locs.append((self.x + (pos - self.nItems // 2) * self.my_class.size[0] * self.spacing, self.y + self.my_class.size[1] / 2))
         return locs
 
     def select(self, which_item): # which_item is an index from 0 to 6, indicating which item in the cache has been selected

@@ -40,21 +40,21 @@ class PlayerArea(pygame.sprite.Sprite):
     def draw(self, group):
         self.add(group)
         self.draw_court(group)
-        self.cache.draw_cubes(group)
+        self.cache.draw(group)
 
     def draw_court(self, group):
         for court_section in self.court_sections:
             court_section.draw(group)
 
     def select_cube(self, which_cube):
-        return self.cache.select_cube(which_cube)
+        return self.cache.select(which_cube)
 
     def add_to_court(self, which_cube):
         color_id = self.cache_list[which_cube] # color id of the selected cube
         court_section = self.court_sections[color_id]
         new_xy = court_section.coords_of_cube(court_section.cube_locs()[court_section.num_cubes])
         court_section.num_cubes += 1
-        updated_rects = self.cache.cube_list[which_cube].update_pos(new_xy)
+        updated_rects = self.cache.item_list[which_cube].update_pos(new_xy)
         updated_rects.extend(self.select_cube(which_cube))
         return updated_rects
         # return self.select_cube(which_cube)
@@ -63,9 +63,9 @@ class PlayerArea(pygame.sprite.Sprite):
     def remove_from_court(self, which_cube):
         color_id = self.cache_list[which_cube] # color id of the selected cube
         court_section = self.court_sections[color_id]
-        new_xy = self.cache.cube_locs[which_cube]
+        new_xy = self.cache.item_locs[which_cube]
         court_section.num_cubes -= 1
-        updated_rects = self.cache.cube_list[which_cube].update_pos(new_xy)
+        updated_rects = self.cache.item_list[which_cube].update_pos(new_xy)
         updated_rects.extend(self.select_cube(which_cube))
         return updated_rects
 

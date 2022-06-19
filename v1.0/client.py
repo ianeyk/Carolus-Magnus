@@ -55,7 +55,7 @@ def main():
             continue
 
         updated_rects = p1.select(event)
-        p1.player_render.cache.draw_cubes(group)
+        p1.player_render.cache.draw(group)
         group.draw(display)
         # pygame.display.update(updated_rects)
         pygame.display.flip()

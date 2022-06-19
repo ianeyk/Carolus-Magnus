@@ -101,7 +101,7 @@ class Player():
         The new selection mode is CUBES, and the search mode resets to CACHE.
         """
         # move the cube
-        new_xy = self.player_render.cache.cube_locs[self.selected_cube]
+        new_xy = self.player_render.cache.item_locs[self.selected_cube]
         updated_rects = self.move_selected_cube_to(new_xy)
 
         # deselect the territory
@@ -168,7 +168,7 @@ class Player():
 
     def move_selected_cube_to(self, new_xy):
         """Helper function to update the position of a selected cube, returning the rects at the old and new locations."""
-        return self.player_render.cache.cube_list[self.selected_cube].update_pos(new_xy)
+        return self.player_render.cache.item_list[self.selected_cube].update_pos(new_xy)
 
 # #################################################################################################### #
 # Below lies the dark magic of cube selection. Beware, and don't touch anything shiny. (Bwaahaahaaaaa) #
