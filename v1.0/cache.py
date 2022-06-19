@@ -16,9 +16,8 @@ class Cache():
         self.cube_locs = self.generate_cube_locs()
         self.cube_list = [] # list of cube objects for highlighting purposes
         for loc, color_id in zip(self.cube_locs, self.cache_list):
-            cube = Cube(*loc, color_id, png_path = Cube.cache_pngs[color_id])
+            cube = Cube(*loc, color_id, png_path_dict = Cube.cache_pngs)
             self.cube_list.append(cube)
-            #TODO: give each cube that is generated as part of the cache a slightly different PNG (highlighted or such)
 
     def draw_cubes(self, group):
         for cube in self.cube_list:
