@@ -48,8 +48,8 @@ class Territory(pygame.sprite.Sprite):
     def update(self, new_terr: GameTerritory):
         current_cube_set = Counter(self.cube_list)
         new_cube_set = new_terr.cubes.get_cubes()
-        for color_id, in range(5):
-            while new_cube_set[color_id] > current_cube_set.get(color_id, default = 0):
+        for color_id in range(5):
+            while new_cube_set[color_id] > current_cube_set.get(color_id, 0): # default value of 0
                 self.add_cube(6, color_id)
                 new_cube_set[color_id] -= 1
 
