@@ -1,6 +1,9 @@
 from random import shuffle
 from actions import Opening, CubeAction, Action
 from game_player import GamePlayer
+from game_state import GameState
+from game_territory import GameTerritory
+from cube_set import CubeSet
 
 class Game():
     # only implementing two-player mode
@@ -149,44 +152,8 @@ class Game():
             print(f"{winner} won the game!")
         return castle_counts
 
-
-class GameTerritory():
-    def __init__(self, starting_cube):
-        self.size = 1
-        self.cubes = CubeSet()
-        self.cubes.add_cube(starting_cube)
-        self.castles = 0
-        self.owner = None
-
-    def __repr__(self) -> str:
-        return f"GameTerritory with size {self.size} and {self.castles} {GamePlayer.team_dict[self.owner]} castles"
-
-class CubeSet():
-    color_dict = {0:"green", 1:"red", 2:"blue", 3:"yellow", 4:"pink"}
-
-    def __init__(self):
-        self.cubes = [0, 0, 0, 0, 0]
-
-    def add_cube(self, color_id):
-        self.cubes[color_id] += 1
-
-    def remove_cube(self, color_id):
-        if self.cubes[color_id] <= 0:
-            print("Tried to remove a cube when there are no cubes of that color")
-        self.cubes[color_id] -= 1
-
-    def get_cube_count(self, color_id):
-        return self.cubes[color_id]
-
-    def get_cubes(self):
-        return self.cubes
-
-    def add_cubeSet(self, other):
-        for color_id in range(5):
-            self.cubes[color_id] += other.cubes[color_id]
-
-    def __repr__(self):
-        return f"<CubeSet with {self.cubes[0]} green, {self.cubes[1]} red, {self.cubes[2]} blue, {self.cubes[3]} yellow, {self.cubes[4]} pink>"
+    def get_game_state(self):
+        return GameState()
 
 def main():
     print("Hello World!")

@@ -1,3 +1,5 @@
+from cube_set import CubeSet
+
 class GamePlayer():
     team_dict = {0:"White", 1:"Black", 2:"Gray", None:"Neutral"}
     # dict_team = {v: k for k, v in team_dict.items()}
