@@ -39,9 +39,9 @@ class Render(pygame.sprite.Sprite):
         # self.terr = Territory(self.width / 2, self.height / 2, 0, 4)
 
     def update_game_state(self, game_state: GameState) -> None:
-        self.players = game_state.players
-        self.territories = game_state.territories
-        pass # TODO: update
+        for (player_area, game_player) in zip(self.players, game_state.players):
+            player_area.update(game_player)
+        self.map.update(game_state.territories)
     # def __init__(self, nPlayers, whose_turn, players, court_control_list, territories, king):
 
     def draw(self, group: pygame.sprite.Group) -> None:
