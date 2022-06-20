@@ -152,8 +152,8 @@ class Game():
             print(f"{winner} won the game!")
         return castle_counts
 
-    def get_game_state(self):
-        return GameState()
+    def get_game_state(self): # create a GameState object and return it
+        return GameState(self.nPlayers, self.whose_turn, self.players, self.court_control_list, self.territories, self.king)
 
 def main():
     print("Hello World!")

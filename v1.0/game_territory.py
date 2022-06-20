@@ -1,3 +1,4 @@
+from game_player import GamePlayer
 from cube_set import CubeSet
 
 class GameTerritory():

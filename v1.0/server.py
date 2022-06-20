@@ -17,8 +17,8 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 
-game = Game(4)
-game_state = 0 #TODO: Replace with an actual game_state object
+game = Game(nPlayers = 4)
+game_state = game.get_game_state()
 
 def threaded_client(conn):
     conn.sendall(pickle.dumps(game_state))
@@ -31,7 +31,7 @@ def threaded_client(conn):
                 print("Disconnected")
                 break
             else:
-                game.handle_game_state_update(data) #TODO: Create and call this method on Game.py
+                game.handle_game_state_update(data)
                 game_state = game.get_game_state()
                 print("Received: ", data)
                 print("Sending : ", game_state)

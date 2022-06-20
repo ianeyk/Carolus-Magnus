@@ -33,7 +33,7 @@ def main():
     clock = pygame.time.Clock()
     group = pygame.sprite.Group()
 
-    # n = Network()
+    n = Network()
     # p = n.getP()
 
     r = Render(width, height, 0)
@@ -48,7 +48,7 @@ def main():
     run = True
     while run:
         clock.tick(30)
-        # p2 = n.send(p)
+        game_state = n.send(game_cube_actions)
 
         event = pygame.event.poll()
 
