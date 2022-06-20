@@ -2,6 +2,7 @@ import socket
 from _thread import *
 import pickle
 from player import Player
+from game import Game
 
 server = "192.168.32.30"
 port = 5555
@@ -16,39 +17,34 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 
-players = [Player(100, 100, 50, 50, (255, 0, 0)), Player(0, 0, 50, 50, (0, 0, 255))]
+game = Game(4)
+game_state = 0 #TODO: Replace with an actual game_state object
 
-def threaded_client(conn, player):
-    conn.send(pickle.dumps(players[player]))
+def threaded_client(conn):
+    conn.sendall(pickle.dumps(game_state))
     reply = ""
     while True:
         try:
             data = pickle.loads(conn.recv(2048))
-            players[player] = data # replace the old Player object with the newly received object
 
             if not data:
                 print("Disconnected")
                 break
             else:
-                if player == 1:
-                    reply = players[0]
-                else:
-                    reply = players[1]
-
+                game.handle_game_state_update(data) #TODO: Create and call this method on Game.py
+                game_state = game.get_game_state()
                 print("Received: ", data)
-                print("Sending : ", reply)
+                print("Sending : ", game_state)
 
             conn.sendall(pickle.dumps(reply))
+
         except:
             break
-
     print("Lost connection")
     conn.close()
 
-currentPlayer = 0
 while True:
     conn, addr = s.accept()
     print("Connected to:", addr)
 
-    start_new_thread(threaded_client, (conn, currentPlayer))
-    currentPlayer += 1
+    start_new_thread(threaded_client, conn)

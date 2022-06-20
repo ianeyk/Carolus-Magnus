@@ -1,5 +1,6 @@
 from random import shuffle
 from actions import Opening, CubeAction, Action
+from game_player import GamePlayer
 
 class Game():
     # only implementing two-player mode
@@ -29,7 +30,7 @@ class Game():
     def initialize_territories(self):
         territories = []
         for territory in range(15):
-            territories.append(Territory(self.cube_supply.pop()))
+            territories.append(GameTerritory(self.cube_supply.pop()))
         return territories
 
     def initialize_players(self):
@@ -37,7 +38,7 @@ class Game():
         for player_number in range(self.nPlayers):
             team_num = player_number % self.nPlayers
             starting_initiative = player_number
-            players.append(Player(self, player_number, team_num, starting_initiative))
+            players.append(GamePlayer(self, player_number, team_num, starting_initiative))
         return players
 
     def verify_action(self, action: Action):
@@ -83,9 +84,7 @@ class Game():
         self.check_territory_owner(self.king, True)
 
     def check_territory_owner(self, terr_id, king = False):
-        """
-        takes in a territory ID and returns the team (0, 1, or 2) with the most cubes and castles
-        """
+        """Takes in a territory ID and returns the team (0, 1, or 2) with the most cubes and castles."""
         terr = self.territories[terr_id]
         prev_owner = terr.owner # used to check if the ownership changed
 
@@ -146,12 +145,12 @@ class Game():
             if terr.owner and terr.castles:
                 castle_counts[terr.owner] += terr.castles
         if max(castle_counts) > 10:
-            winner = Player.team_dict[castle_counts.index(max(castle_counts))]
+            winner = GamePlayer.team_dict[castle_counts.index(max(castle_counts))]
             print(f"{winner} won the game!")
         return castle_counts
 
 
-class Territory():
+class GameTerritory():
     def __init__(self, starting_cube):
         self.size = 1
         self.cubes = CubeSet()
@@ -160,7 +159,7 @@ class Territory():
         self.owner = None
 
     def __repr__(self) -> str:
-        return f"Territory with size {self.size} and {self.castles} {Player.team_dict[self.owner]} castles"
+        return f"GameTerritory with size {self.size} and {self.castles} {GamePlayer.team_dict[self.owner]} castles"
 
 class CubeSet():
     color_dict = {0:"green", 1:"red", 2:"blue", 3:"yellow", 4:"pink"}
@@ -188,61 +187,6 @@ class CubeSet():
 
     def __repr__(self):
         return f"<CubeSet with {self.cubes[0]} green, {self.cubes[1]} red, {self.cubes[2]} blue, {self.cubes[3]} yellow, {self.cubes[4]} pink>"
-
-class Player():
-    team_dict = {0:"White", 1:"Black", 2:"Gray", None:"Neutral"}
-    # dict_team = {v: k for k, v in team_dict.items()}
-
-    def __init__(self, game, player_number, team, starting_initiative): # team is either 0, 1, or 2
-        self.game = game
-        self.player_number = player_number
-        self.team = team
-        self.initiative_tokens = {1, 2, 3, 4, 5}
-        self.used_initiative_tokens = []
-        self.current_initiative = starting_initiative
-
-        # cube sets
-        self.court = CubeSet() # exert control
-        self.cache = CubeSet() # stored for deployment; start with 7 random cubes
-        self.replenish_cache(7 if self.game.nPlayers in [2, 4] else 9)
-
-    def __repr__(self):
-        return f"Player {self.player_number}, team {Player.team_dict[self.team]}"
-
-    def play_initiative(self, initiative):
-        # check for valid initiative marker
-        if initiative not in self.initiative_tokens:
-            print("Tried to take an ititiative that you have already used or is out of range")
-        if initiative in self.game.current_initiative_already_played_this_turn:
-            print("Someone else has already played that initiative marker this turn")
-
-        self.initiative_tokens.remove(initiative) # remove the initiative marker from play
-        self.used_initiative_tokens.append(initiative) # and add it to the used stack
-        self.game.current_initiative_already_played_this_turn.add(initiative)
-        self.turn_order = initiative
-
-    def replenish_cache(self, n):
-        for cube in range(n):
-            color_id = self.game.cube_supply.pop()
-            self.cache.add_cube(color_id)
-
-    def add_to_court(self, color_id):
-        # check ownership
-        if self.court.get_cube_count(color_id) == max(self.game.court_list[color_id]):
-            # you are now in control (after adding your cube)
-            self.game.court_control_list[color_id] = self.player_number
-
-        # add cube
-        self.cache.remove_cube(color_id)
-        self.court.add_cube(color_id)
-        self.game.court_list[color_id][self.player_number] += 1
-        return True
-
-    def add_to_territory(self, color_id, terr_id):
-        # place the cube in the territory
-        self.cache.remove_cube(color_id)
-        self.game.territories[terr_id].cubes.add_cube(color_id)
-
 
 def main():
     print("Hello World!")
