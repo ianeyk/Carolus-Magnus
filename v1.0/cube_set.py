@@ -22,6 +22,10 @@ class CubeSet():
         for color_id in range(5):
             self.cubes[color_id] += other.cubes[color_id]
 
+    def subtract_cubeSet(self, other):
+        for color_id in range(5):
+            self.cubes[color_id] -= other.cubes[color_id]
+
     def get_cube_list(self):
         cube_list = []
         for color_id, num_cubes in enumerate(self.cubes):

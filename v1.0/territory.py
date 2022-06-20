@@ -1,7 +1,9 @@
 import pygame
 import math
 import random
+from collections import Counter
 from cube import Cube
+from game_territory import GameTerritory
 
 class Territory(pygame.sprite.Sprite):
     pngs = {
@@ -30,10 +32,35 @@ class Territory(pygame.sprite.Sprite):
 
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
+        self.can_draw = True # set to False if the territory disappears because of merging
 
         self.cubes = []
         for loc, color_id in enumerate(self.cube_list):
             self.cubes.append(Cube(*self.coords_of_cube(self.placement_order[loc]), color_id))
+
+    # def __init__(self, starting_cube):
+    #     self.size = 1
+    #     self.cubes = CubeSet()
+    #     self.cubes.add_cube(starting_cube)
+    #     self.castles = 0
+    #     self.owner = None
+
+    def update(self, new_terr: GameTerritory):
+        current_cube_set = Counter(self.cube_list)
+        new_cube_set = new_terr.cubes.get_cubes()
+        for color_id, in range(5):
+            while new_cube_set[color_id] > current_cube_set.get(color_id, default = 0):
+                self.add_cube(6, color_id)
+                new_cube_set[color_id] -= 1
+
+        # reset the temp_cube tracking
+        self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
+
+    def clear(self):
+        self.kill()
+        for cube in self.cubes():
+            cube.kill()
+        self.can_draw = False
 
     def coords_of_cube(self, loc):
         assert(loc <= 24) # fails for more cubes on one hex
@@ -62,8 +89,9 @@ class Territory(pygame.sprite.Sprite):
         return rotated
 
     def draw(self, group):
-        self.add(group)
-        self.draw_cubes(group)
+        if self.can_draw:
+            self.add(group)
+            self.draw_cubes(group)
 
     def draw_cubes(self, group):
         for cube in self.cubes:

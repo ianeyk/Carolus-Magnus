@@ -36,8 +36,14 @@ class Map(pygame.sprite.Sprite):
             territories.append(Territory(terr_x, terr_y, angle, 1))
         return territories
 
-    # def update(self, territories):
-#
+    def update(self, new_territories):
+        for new_terr, terr in zip(new_territories, self.territories):
+            if new_terr is None: # if a territory got merged
+                terr.clear()
+            else:
+                terr.update(new_terr)
+
+
 
     def draw(self, group):
         for territory in self.territories:
