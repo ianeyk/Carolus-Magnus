@@ -1,8 +1,9 @@
+from numpy import place
 import pygame
 from enum import Enum
 from playerArea import PlayerArea
 from map import Map
-from game_cube_actions import GameCubeActions
+from game_cube_actions import GameCubeAction, GameCubeActions
 
 class Player():
     # Enum for tracking what region the current cube is in on the board
@@ -40,16 +41,28 @@ class Player():
         self.cache_list = self.player_render.cache_list
         self.cache_size = len(self.cache_list)
         self.terr_list = [None] * self.cache_size
-        self.cube_placements = [Player.CubeRegion.CACHE for i in range(self.cache_size)] # all cubes start in the Cache
+        self.cube_placements = [Player.CubeRegion.CACHE] * self.cache_size # all cubes start in the Cache
         self.search_mode = Player.CubeRegion.CACHE # used in self.right_cube()
 
         self.nActions = 3
         self.cubes_placed = 0
-        self.ready_to_return = False
 
-    def return_actions(self):
-        if self.ready_to_return:
-            return GameCubeActions([0, 0, 0], 1)
+    def return_actions(self): # called when enter is pressed
+        """Unpack all cube placement actions that have been taken over the course of the turn and add them to a
+        GameCubeActions object for export to the server.
+        self.return_actions() is called whenever ENTER is pressed on the client's turn.
+        It only makes sense to return the actions when self.cubes_placed == self.nActions; i.e. all three cube actions
+        have been taken. self.return_actions() contains rigorous checking to make sure this is the case.
+        If not, either raises an AssertionError or simply returns None."""
+        assert(self.cubes_placed <= self.nActions) # if this is not the case, then we messed up the turn control elsewhere
+
+        if self.cubes_placed == self.nActions: # ready to return
+            cube_placement_list = []
+            for color_id, placement, terr in zip(self.cache_list, self.cube_placements, self.terr_list):
+                if (placement == Player.CubeRegion.COURT) or (placement == Player.CubeRegion.TERRITORY):
+                    cube_placement_list.append(GameCubeAction(color_id, placement, terr))
+            assert(len(cube_placement_list) == self.nActions)
+            return GameCubeActions(cube_placement_list, king = 1)
         # else:
         return None
 
@@ -57,8 +70,6 @@ class Player():
         action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             return None
-
-        # self.selection_mode = Player.SelectionType.TOKENS
 
         if self.selection_mode == Player.SelectionType.TOKENS:
             return self.select_token(event)

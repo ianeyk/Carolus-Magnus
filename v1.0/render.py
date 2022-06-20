@@ -34,6 +34,9 @@ class Render(pygame.sprite.Sprite):
         self.map = Map(self.width / 2, self.height / 2, [0] * 15)
         self.terr = Territory(self.width / 2, self.height / 2, 0, 4)
 
+    def update_game_state(self, game_state):
+        pass # TODO: update
+
     def draw(self, group):
         self.add(group)
         self.map.draw(group)

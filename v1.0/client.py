@@ -11,8 +11,6 @@ height = 720
 
 action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_KP_ENTER]
 
-def on_quit():
-    print("Player quit. Ending session")
 
 def setup_events():
     pygame.event.set_blocked(None)
@@ -26,6 +24,9 @@ def setup_display(width, height):
     display = pygame.display.set_mode((width, height))
     return display
 
+def on_quit():
+    print("Player quit. Ending session")
+
 def main():
 
     display = setup_display(width, height)
@@ -35,6 +36,8 @@ def main():
 
     n = Network()
     # p = n.getP()
+
+    game_state = 0
 
     r = Render(width, height, 0)
     p1_render = r.players[0]
@@ -48,7 +51,6 @@ def main():
     run = True
     while run:
         clock.tick(30)
-        # game_state = n.send(game_cube_actions)
 
         event = pygame.event.poll()
 
@@ -59,6 +61,15 @@ def main():
 
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             continue
+
+        if event.key == pygame.K_KP_ENTER:
+            game_cube_actions = p1.return_actions()
+            if game_cube_actions is not None:
+                game_state = n.send(game_cube_actions)
+                r.update_game_state(game_state)
+                continue
+            else:
+                print("Please take all required cube actions before pressing enter")
 
         updated_rects = p1.select(event)
         # p1.player_render.cache.draw_cubes(group)

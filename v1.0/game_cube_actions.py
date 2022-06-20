@@ -1,3 +1,10 @@
+class GameCubeAction():
+    def __init__(self, color_id, cube_placement, terr_id = None):
+        self.color_id = color_id
+        self.cube_placement = cube_placement
+        self.terr_id = terr_id
+
+
 class GameCubeActions():
     def __init__(self, cube_actions, king_movement):
         self.cube_actions = cube_actions
