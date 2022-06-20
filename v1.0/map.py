@@ -36,6 +36,9 @@ class Map(pygame.sprite.Sprite):
             territories.append(Territory(terr_x, terr_y, angle, 1))
         return territories
 
+    # def update(self, territories):
+#
+
     def draw(self, group):
         for territory in self.territories:
             territory.draw(group)

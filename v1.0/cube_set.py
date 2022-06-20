@@ -22,5 +22,12 @@ class CubeSet():
         for color_id in range(5):
             self.cubes[color_id] += other.cubes[color_id]
 
+    def get_cube_list(self):
+        cube_list = []
+        for color_id, num_cubes in enumerate(self.cubes):
+            cube_list.extend([color_id] * num_cubes)
+        return cube_list
+
+
     def __repr__(self):
         return f"<CubeSet with {self.cubes[0]} green, {self.cubes[1]} red, {self.cubes[2]} blue, {self.cubes[3]} yellow, {self.cubes[4]} pink>"

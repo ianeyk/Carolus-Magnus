@@ -40,6 +40,14 @@ class PlayerArea(pygame.sprite.Sprite):
             section_y = self.y + PlayerArea.size[1] / 2 - CourtSection.size[1] - PlayerArea.small_offset_from_edges
             self.court_sections.append(CourtSection(section_x, section_y, color_id, cube_count))
 
+    def update(self, cube_counts, cache_list):
+        self.cube_counts = cube_counts
+        for color_id, cube_count in enumerate(self.cube_counts):
+            self.court_sections[color_id].update(cube_count)
+
+        self.cache_list = cache_list
+        self.cache.update(self.cache_list)
+
     def draw(self, group):
         self.add(group)
         self.draw_court(group)

@@ -3,7 +3,8 @@ import pygame
 from enum import Enum
 from playerArea import PlayerArea
 from map import Map
-from game_cube_actions import GameCubeAction, GameCubeActions
+from actions import CubeAction, Action
+# from game_cube_actions import GameCubeAction, GameCubeActions
 
 class Player():
     # Enum for tracking what region the current cube is in on the board
@@ -56,15 +57,17 @@ class Player():
         If not, either raises an AssertionError or simply returns None."""
         assert(self.cubes_placed <= self.nActions) # if this is not the case, then we messed up the turn control elsewhere
 
-        if self.cubes_placed == self.nActions: # ready to return
-            cube_placement_list = []
-            for color_id, placement, terr in zip(self.cache_list, self.cube_placements, self.terr_list):
-                if (placement == Player.CubeRegion.COURT) or (placement == Player.CubeRegion.TERRITORY):
-                    cube_placement_list.append(GameCubeAction(color_id, placement, terr))
-            assert(len(cube_placement_list) == self.nActions)
-            return GameCubeActions(cube_placement_list, king = 1)
+        if self.cubes_placed < self.nActions: # if not enough actions have been taken yet, do not complete the turn
+            return None
         # else:
-        return None
+        cube_actions = []
+        for color_id, placement, terr in zip(self.cache_list, self.cube_placements, self.terr_list):
+            if placement == Player.CubeRegion.COURT:
+            # placement == Player.CubeRegion.TERRITORY:
+                cube_actions.append(CubeAction(color_id, court = True, terr_id = None))
+        assert(len(cube_actions) == self.nActions)
+        return Action(self.player_render.team, cube_actions, king = 1)
+
 
     def select(self, event:pygame.event.Event):
         action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]

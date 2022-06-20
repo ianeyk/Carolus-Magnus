@@ -72,7 +72,7 @@ class Game():
             # else
             initiatives.pop(next_player_candidate) # and repeat
 
-        # when all players have played:
+        # when all players have played, reset the turn order:
         self.current_players_already_played_this_turn = set()
 
     def verify_opening(opening: Opening):

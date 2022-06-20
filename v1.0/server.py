@@ -25,15 +25,15 @@ def threaded_client(conn):
     reply = ""
     while True:
         try:
-            data = pickle.loads(conn.recv(2048))
+            action = pickle.loads(conn.recv(2048))
 
-            if not data:
+            if not action:
                 print("Disconnected")
                 break
             else:
-                game.handle_game_state_update(data)
+                game.handle_action(action)
                 game_state = game.get_game_state()
-                print("Received: ", data)
+                print("Received: ", action)
                 print("Sending : ", game_state)
 
             conn.sendall(pickle.dumps(reply))

@@ -25,12 +25,16 @@ class CourtSection(pygame.sprite.Sprite):
         png_image = pygame.image.load(CourtSection.pngs[color_id])
         self.image = pygame.transform.smoothscale(png_image, CourtSection.size)
         self.rect = (x - CourtSection.size[0] / 2, y, *CourtSection.size)
+        self.locs = self.cube_locs(CourtSection.spacing)
 
         self.cube_list = []
-        locs = self.cube_locs(CourtSection.spacing)
-
-        for loc in locs[0:self.num_cubes]:
+        for loc in self.locs[0:self.num_cubes]:
             self.cube_list.append(Cube(*self.coords_of_cube(loc), self.color_id))
+
+    def update(self, cube_count):
+        for loc in self.locs[self.num_cubes:cube_count]:
+            self.cube_list.append(Cube(*self.coords_of_cube(loc), self.color_id))
+            self.num_cubes = cube_count
 
     def coords_of_cube(self, loc):
         return (self.x + loc[0], self.y + loc[1] + CourtSection.cube_vertical_offset)

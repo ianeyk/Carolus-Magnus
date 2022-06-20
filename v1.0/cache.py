@@ -9,10 +9,16 @@ class Cache():
         self.x = x
         self.y = y
         self.cache_list = cache_list # list of 7 color_ids
-        self.nCubes = len(self.cache_list)
         self.size = size
         self.prev_selected_cube = 0
+        self.generate_cubes()
 
+    def update(self, cache_list):
+        self.cache_list = cache_list
+        self.generate_cubes()
+
+    def generate_cubes(self):
+        self.nCubes = len(self.cache_list)
         self.cube_locs = self.generate_cube_locs()
         self.cube_list = [] # list of cube objects for highlighting purposes
         for loc, color_id in zip(self.cube_locs, self.cache_list):
