@@ -50,7 +50,7 @@ class Game():
     def handle_action(self, action: Action):
         # perform cube actions: either add each cube to the court or add it to a territory
         self.verify_action(action)
-        acting_player = self.players[action.player]
+        acting_player:GamePlayer = self.players[action.player]
         for cube_action in action.cube_actions:
             if cube_action.court:
                 acting_player.add_to_court(cube_action.color_id)

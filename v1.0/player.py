@@ -48,6 +48,22 @@ class Player():
         self.nActions = 3
         self.cubes_placed = 0
 
+    def reset_player_area(self):
+        self.selected_territory = 0
+        self.n_territories = len(self.map.territories)
+
+        self.selection_mode = Player.SelectionType.CUBES
+        self.selected_cube = 0
+
+        self.cache_list = self.player_render.cache_list
+        self.cache_size = len(self.cache_list)
+        self.terr_list = [None] * self.cache_size
+        self.cube_placements = [Player.CubeRegion.CACHE] * self.cache_size # all cubes start in the Cache
+        self.search_mode = Player.CubeRegion.CACHE # used in self.right_cube()
+
+        self.cubes_placed = 0
+
+
     def return_actions(self): # called when enter is pressed
         """Unpack all cube placement actions that have been taken over the course of the turn and add them to a
         GameCubeActions object for export to the server.

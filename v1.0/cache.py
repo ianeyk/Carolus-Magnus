@@ -14,6 +14,7 @@ class Cache():
         self.generate_cubes()
 
     def update(self, cache_list):
+        self.clear_cubes()
         self.cache_list = cache_list
         self.generate_cubes()
 
@@ -28,6 +29,10 @@ class Cache():
     def draw_cubes(self, group):
         for cube in self.cube_list:
             cube.add(group)
+
+    def clear_cubes(self):
+        for cube in self.cube_list:
+            cube.kill()
 
     def generate_cube_locs(self):
         # jitter_range = (-0.4, 0.2)

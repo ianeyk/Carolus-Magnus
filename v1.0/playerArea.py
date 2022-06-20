@@ -47,7 +47,7 @@ class PlayerArea(pygame.sprite.Sprite):
             self.court_sections[color_id].update(cube_count)
 
         # update cache
-        self.cache_list = game_player.cache.get_cubes()
+        self.cache_list = sorted(game_player.cache.get_cube_list())
         self.cache.update(self.cache_list)
 
     def draw(self, group):

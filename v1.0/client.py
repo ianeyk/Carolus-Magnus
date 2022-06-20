@@ -18,7 +18,7 @@ class Client():
         self.player_number = self.network.get_player_num()
 
         self.r = Render(width, height, self.game_state)
-        self.p1_render = self.r.players[self.player_number]
+        self.p1_render = self.r.player_areas[self.player_number]
         self.p1 = Player(self.p1_render, self.r.map)
 
         self.display = self.setup_display(self.width, self.height)
@@ -45,7 +45,7 @@ class Client():
         display = pygame.display.set_mode((width, height))
         return display
 
-    def start_turn(self):
+    def flip_display(self):
         if self.game_state.whose_turn == self.player_number:
             updated_rects = self.p1_render.select_cube(0)
         self.r.draw(self.group) # draw the initial board
@@ -57,7 +57,7 @@ class Client():
 
     def main(self):
         run = True
-        self.start_turn()
+        self.flip_display()
         while run:
             self.clock.tick(30)
             event = pygame.event.poll()
@@ -83,7 +83,8 @@ class Client():
                     self.game_state = self.network.send(game_cube_actions)
                     print("Updating game state to", self.game_state)
                     self.r.update_game_state(self.game_state)
-                    self.start_turn()
+                    self.p1.reset_player_area()
+                    self.flip_display()
                     continue
                 else:
                     print("Please take all required cube actions before pressing enter")

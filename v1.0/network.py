@@ -42,7 +42,7 @@ class Network:
         except socket.error as e:
             print(e)
 
-    def receive_pickle(self, bytes = 2048 * 256):
+    def receive_pickle(self, bytes = 2048 * 256 * 4):
         try:
             received = self.client.recv(bytes)
             # print("Network received:", received)
