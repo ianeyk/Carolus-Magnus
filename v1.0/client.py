@@ -11,6 +11,10 @@ height = 720
 
 action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_KP_ENTER]
 
+# def setup_network():
+#     n = Network()
+#     game_state = n.getP()
+#     return game_state
 
 def setup_events():
     pygame.event.set_blocked(None)
@@ -24,31 +28,36 @@ def setup_display(width, height):
     display = pygame.display.set_mode((width, height))
     return display
 
-def on_quit():
-    print("Player quit. Ending session")
-
-def main():
-
-    display = setup_display(width, height)
-    setup_events()
-    clock = pygame.time.Clock()
-    group = pygame.sprite.Group()
-
-    n = Network()
-    # p = n.getP()
-
-    game_state = 0
-
-    r = Render(width, height, 0)
-    p1_render = r.players[0]
-    p1 = Player(p1_render, r.map)
-    updated_rects = p1_render.select_cube(0)
+def start_turn():
+    if game_state.whose_turn == player_number:
+        updated_rects = p1_render.select_cube(0)
     r.draw(group) # draw the initial board
     group.draw(display)
     pygame.display.flip()
 
+def on_quit():
+    print("Player quit. Ending session")
+
+n = Network()
+game_state = n.getP()
+
+# game_state = setup_network()
+player_number = 0
+
+r = Render(width, height, game_state)
+p1_render = r.players[player_number]
+p1 = Player(p1_render, r.map)
+
+display = setup_display(width, height)
+clock = pygame.time.Clock()
+group = pygame.sprite.Group()
+
+def main():
+
+    setup_events()
 
     run = True
+    start_turn()
     while run:
         clock.tick(30)
 
@@ -59,6 +68,9 @@ def main():
             on_quit()
             pygame.quit()
 
+        if game_state.whose_turn != player_number:
+            continue
+
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             continue
 
@@ -67,6 +79,7 @@ def main():
             if game_cube_actions is not None:
                 game_state = n.send(game_cube_actions)
                 r.update_game_state(game_state)
+                start_turn()
                 continue
             else:
                 print("Please take all required cube actions before pressing enter")
