@@ -47,7 +47,7 @@ class Player():
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             return None
 
-        self.selection_mode = Player.SelectionType.TOKENS
+        # self.selection_mode = Player.SelectionType.TOKENS
 
         if self.selection_mode == Player.SelectionType.TOKENS:
             return self.select_token(event)
