@@ -6,6 +6,7 @@ class Token(Selectable):
 
 class WhiteToken(Token):
     pngs = {
+        -1: "./sprites/tokens/white_token_exhausted0.png",
         0:"./sprites/tokens/white_token01.png",
         1:"./sprites/tokens/white_token02.png",
         2:"./sprites/tokens/white_token03.png",
@@ -15,6 +16,7 @@ class WhiteToken(Token):
 
 class BlackToken(Token):
     pngs = {
+        -1: "./sprites/tokens/black_token_exhausted0.png",
         0:"./sprites/tokens/black_token01.png",
         1:"./sprites/tokens/black_token02.png",
         2:"./sprites/tokens/black_token03.png",
@@ -24,6 +26,7 @@ class BlackToken(Token):
 
 class GreyToken(Token):
    pngs = {
+        -1: "./sprites/tokens/grey_token_exhausted0.png",
         0:"./sprites/tokens/grey_token01.png",
         1:"./sprites/tokens/grey_token02.png",
         2:"./sprites/tokens/grey_token03.png",

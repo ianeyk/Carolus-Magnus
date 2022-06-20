@@ -53,6 +53,9 @@ class PlayerArea(pygame.sprite.Sprite):
     def select_cube(self, which_cube):
         return self.cache.select_cube(which_cube)
 
+    def select_token(self, which_token):
+        return self.token_set.select(which_token)
+
     def add_to_court(self, which_cube):
         color_id = self.cache_list[which_cube] # color id of the selected cube
         court_section = self.court_sections[color_id]

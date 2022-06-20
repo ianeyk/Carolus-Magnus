@@ -30,6 +30,11 @@ class Selectable(pygame.sprite.Sprite):
             size = self.size
         return pygame.transform.smoothscale(self.png_image, (int(size[0]), int(size[1])))
 
+    def set_image(self, new_ordinal_id):
+        self.ordinal_id = new_ordinal_id
+        self.png_image = pygame.image.load(self.pngs[self.ordinal_id])
+        self.image = self.get_image()
+
     def get_rect(self):
         if self.highlighted:
             size = (self.size[0] * self.highlight_scale_factor, self.size[1] * self.highlight_scale_factor)

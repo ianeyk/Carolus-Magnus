@@ -18,8 +18,8 @@ class TokenSet(): # Turn Token
 
         self.token_locs = self.generate_token_locs()
         self.token_list = [] # list of cube objects for highlighting purposes
-        for loc, color_id in zip(self.token_locs, self.token_set):
-            token = self.token_type(*loc, color_id)
+        for loc, ordinal_id in zip(self.token_locs, self.token_set):
+            token = self.token_type(*loc, ordinal_id)
             self.token_list.append(token)
 
     def draw(self, group):
@@ -32,11 +32,11 @@ class TokenSet(): # Turn Token
             locs.append((self.x + (pos - self.nTokens // 2) * Token.size[0] * self.spacing, self.y + Token.size[1] / 2))
         return locs
 
-    def select(self, which_cube): # which_cube is an index from 0 to 6, indicating which cube in the cache has been selected
+    def select(self, which_token): # which_token is an index from 0 to 6, indicating which cube in the cache has been selected
         # updated_rects = self.deselect_all() # unhighlight all cubes
         updated_rects = self.token_list[self.prev_selected_token].un_highlight() # unhighlight the previous cube
-        updated_rects.extend(self.token_list[which_cube].highlight()) # then highlight the interesting cube
-        self.prev_selected_token = which_cube
+        updated_rects.extend(self.token_list[which_token].highlight()) # then highlight the interesting cube
+        self.prev_selected_token = which_token
         return updated_rects # returns the rect containing the highlighted cube, for pygame.display.update() in the main loop
 
     def deselect_all(self):

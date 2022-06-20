@@ -15,6 +15,12 @@ class Player():
     class SelectionType(Enum):
         CUBES = 0
         TERRITORIES = 1
+        TOKENS = 2
+
+    class TokenState(Enum):
+        AVAILABLE = 0
+        SELECTED = 1
+        EXHAUSTED = 2
 
     def __init__(self, player_render: PlayerArea, player_map: Map) -> None:
         self.game_state = 0 #TODO: get game_state
@@ -24,6 +30,11 @@ class Player():
 
         self.selection_mode = Player.SelectionType.CUBES
         self.selected_cube = 0
+
+        self.selected_token = 0
+        self.nTokens = 5
+        self.token_states = [Player.TokenState.AVAILABLE] * self.nTokens
+
         self.player_render = player_render
         self.cache_list = self.player_render.cache_list
         self.cache_size = len(self.cache_list)
@@ -36,10 +47,14 @@ class Player():
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             return None
 
-        if self.selection_mode == Player.SelectionType.CUBES:
+        self.selection_mode = Player.SelectionType.TOKENS
+
+        if self.selection_mode == Player.SelectionType.TOKENS:
+            return self.select_token(event)
+        elif self.selection_mode == Player.SelectionType.CUBES:
             return self.select_cube(event)
-        # else:
-        return self.select_territory(event)
+        else:
+            return self.select_territory(event)
 
     def select_territory(self, event:pygame.event.Event): # -> tuple[pygame.sprite.Group, list[any]]:
         updated_rects = None
@@ -169,6 +184,50 @@ class Player():
     def move_selected_cube_to(self, new_xy):
         """Helper function to update the position of a selected cube, returning the rects at the old and new locations."""
         return self.player_render.cache.cube_list[self.selected_cube].update_pos(new_xy)
+
+
+    def select_token(self, event:pygame.event.Event): # -> tuple[pygame.sprite.Group, list[any]]:
+        updated_rects = None
+
+        if event.key == pygame.K_LEFT: # select left
+            for i in range(self.nTokens):
+                self.selected_token = (self.selected_token - 1) % self.nTokens
+                if self.token_states[self.selected_token] == Player.TokenState.AVAILABLE:
+                    updated_rects = self.player_render.select_token(self.selected_token)
+                    return updated_rects
+            assert False, "Tried to select new cube when no cubes are AVAILABLE"
+
+        elif event.key == pygame.K_RIGHT: # select right
+            for i in range(self.nTokens):
+                self.selected_token = (self.selected_token + 1) % self.nTokens
+                if self.token_states[self.selected_token] == Player.TokenState.AVAILABLE:
+                    updated_rects = self.player_render.select_token(self.selected_token)
+                    return updated_rects
+            assert False, "Tried to select new cube when no cubes are AVAILABLE"
+
+        # elif event.key == pygame.K_UP: # return to cache
+        #     if self.token_states[self.selected_token] == Player.TokenState.SELECTED:
+        #         self.token_states[self.selected_token] = Player.TokenState.AVAILABLE
+        #         self.player_render.token_set.token_list[self.selected_token].set_image(self.selected_token)
+        #         updated_rects = self.player_render.select_token(self.selected_token)
+
+        # elif event.key == pygame.K_DOWN: # add to territory
+        #     if self.token_states[self.selected_token] == Player.TokenState.AVAILABLE:
+        #         self.token_states[self.selected_token] = Player.TokenState.SELECTED
+        #         self.player_render.token_set.token_list[self.selected_token].set_image(-1)
+        #         updated_rects = self.player_render.select_token(self.selected_token)
+
+        elif event.key == pygame.K_KP_ENTER: # end turn selection with selected value
+            print(f"Selected token {self.selected_token}")
+            return self.selected_token
+            # self.selection_mode = Player.SelectionType.CUBES
+
+        return updated_rects
+
+
+
+
+
 
 # #################################################################################################### #
 # Below lies the dark magic of cube selection. Beware, and don't touch anything shiny. (Bwaahaahaaaaa) #
