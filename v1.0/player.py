@@ -2,6 +2,7 @@ import pygame
 from enum import Enum
 from playerArea import PlayerArea
 from map import Map
+from game_cube_actions import GameCubeActions
 
 class Player():
     # Enum for tracking what region the current cube is in on the board
@@ -42,6 +43,16 @@ class Player():
         self.cube_placements = [Player.CubeRegion.CACHE for i in range(self.cache_size)] # all cubes start in the Cache
         self.search_mode = Player.CubeRegion.CACHE # used in self.right_cube()
 
+        self.nActions = 3
+        self.cubes_placed = 0
+        self.ready_to_return = False
+
+    def return_actions(self):
+        if self.ready_to_return:
+            return GameCubeActions([0, 0, 0], 1)
+        # else:
+        return None
+
     def select(self, event:pygame.event.Event):
         action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
@@ -76,6 +87,7 @@ class Player():
             if self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY_HOLDING:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.TERRITORY
                 updated_rects = self.add_to_territory()
+                self.cubes_placed += 1
 
         return updated_rects
 
@@ -145,6 +157,7 @@ class Player():
             if self.cube_placements[self.selected_cube] == Player.CubeRegion.COURT:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.CACHE
                 updated_rects = self.player_render.remove_from_court(self.selected_cube)
+                self.cubes_placed -= 1
 
             # if in CACHE: move to holding
             elif self.cube_placements[self.selected_cube] == Player.CubeRegion.CACHE:
@@ -155,11 +168,13 @@ class Player():
             elif self.cube_placements[self.selected_cube] == Player.CubeRegion.TERRITORY:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.TERRITORY_HOLDING
                 updated_rects = self.remove_from_territory()
+                self.cubes_placed -= 1
 
         elif event.key == pygame.K_DOWN: # add to court (adding to territories only happens in select_territory())
             if self.cube_placements[self.selected_cube] == Player.CubeRegion.CACHE:
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.COURT
                 updated_rects = self.player_render.add_to_court(self.selected_cube)
+                self.cubes_placed += 1
 
         return updated_rects
 
@@ -271,6 +286,10 @@ class Player():
 
     # underscored because it hides the inner workings
     def _right_cube(self, temp_selected_cube, prev_color_id = None):
+        if (self.cubes_placed >= self.nActions) and (self.search_mode == Player.CubeRegion.CACHE):
+            self.search_mode = Player.CubeRegion.COURT
+            temp_selected_cube = self.cache_size - 1
+
         prev_terr_id = self.terr_list[temp_selected_cube]
         if not prev_color_id:
             prev_color_id = self.cache_list[temp_selected_cube]
@@ -296,6 +315,10 @@ class Player():
             self.search_mode = Player.CubeRegion.TERRITORY
             return 0
         elif self.search_mode == Player.CubeRegion.TERRITORY:
+            if self.cubes_placed >= self.nActions:
+                self.search_mode = Player.CubeRegion.COURT
+                return self.cache_size - 1
+            # else:
             self.search_mode = Player.CubeRegion.CACHE
             return 0
             #TODO: if placement limit has been reached, don't let search_mode go back to cache

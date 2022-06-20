@@ -48,7 +48,7 @@ def main():
     run = True
     while run:
         clock.tick(30)
-        game_state = n.send(game_cube_actions)
+        # game_state = n.send(game_cube_actions)
 
         event = pygame.event.poll()
 
