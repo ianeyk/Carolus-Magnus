@@ -83,7 +83,7 @@ class Client():
                     self.game_state = self.network.send(game_cube_actions)
                     print("Updating game state to", self.game_state)
                     self.r.update_game_state(self.game_state)
-                    self.p1.reset_player_area()
+                    self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
                     self.flip_display()
                     continue
                 else:

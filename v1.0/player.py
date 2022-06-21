@@ -48,7 +48,10 @@ class Player():
         self.nActions = 3
         self.cubes_placed = 0
 
-    def reset_player_area(self):
+    def reset_player_area(self, player_render, map):
+        self.player_render = player_render
+        self.map = map
+
         self.selected_territory = 0
         self.n_territories = len(self.map.territories)
 
