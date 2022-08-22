@@ -85,7 +85,7 @@ class Player():
             # placement == Player.CubeRegion.TERRITORY:
                 cube_actions.append(CubeAction(color_id, court = True, terr_id = None))
             elif placement == Player.CubeRegion.TERRITORY:
-                cube_actions.append(CubeAction(color_id, court = True, terr_id = None))
+                cube_actions.append(CubeAction(color_id, court = False, terr_id = terr))
         assert(len(cube_actions) == self.nActions)
         return Action(self.player_render.team, cube_actions, king = 1)
 

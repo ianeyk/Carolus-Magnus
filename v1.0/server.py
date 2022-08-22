@@ -47,11 +47,14 @@ class Server():
 
                 self.conn.send(pickle.dumps(game_state))
 
-            except:
+            except Exception as e:
+                print("error in connection was: ")
+                print(e)
                 break
 
         print("Lost connection")
         self.conn.close()
+        # assert(False) # crash so we can restart the server #TODO: take out this line when done debugging
 
     def run_thread(self):
         while True:
