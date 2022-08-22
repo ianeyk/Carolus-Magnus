@@ -16,7 +16,7 @@ class Server():
         try:
             self.socket.bind((self.server, self.port))
         except socket.error as e:
-            str(e)
+            print(e)
 
         self.socket.listen(self.nPlayers)
         print("Waiting for a connection, Server Started")
@@ -64,7 +64,8 @@ class Server():
             # self.next_player_num += 1
 
 def main():
-    my_server = Server(server = "192.168.32.30", port = 5555)
+    # my_server = Server(server = "192.168.32.30", port = 5555) # this doesn't work while using a phone as hotspot!
+    my_server = Server(server = "localhost", port = 5555)
     my_server.run_thread()
 
 main()

@@ -101,7 +101,9 @@ def main():
     # width = 1000
     # height = 500
 
+    print("creating client")
     client = Client(width, height)
+    print("running main")
     client.main()
 
 main()
