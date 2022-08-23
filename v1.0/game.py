@@ -13,6 +13,8 @@ class Game():
         self.current_players_already_played_this_turn = set()
         self.whose_turn = 0 # starting player
 
+        self.n_territories = 15
+
         self.cube_supply = self.initialize_cube_supply()
         self.territories = self.initialize_territories()
         self.king = 0 # marker for which territory the king is on
@@ -32,7 +34,7 @@ class Game():
 
     def initialize_territories(self):
         territories = []
-        for territory in range(15):
+        for territory in range(self.n_territories):
             territories.append(GameTerritory(self.cube_supply.pop()))
         return territories
 
@@ -59,7 +61,7 @@ class Game():
         acting_player.replenish_cache(len(action.cube_actions))
 
         # perform king action: advance the king marker and check territory control
-        # self.move_king(action.king) #TODO: uncomment this line
+        self.move_king(action.king) #TODO: uncomment this line
         self.whose_turn = self.next_player()
 
     def next_player(self):
@@ -83,12 +85,30 @@ class Game():
         self.players[opening.player].play_initiative(opening.inititative)
 
     def move_king(self, num_spaces):
-        self.king += num_spaces
+        print("moving king!")
+        # check game end criterion
+        n_existing_territories = 0
+        for territory in self.territories:
+            if territory is not None:
+                n_existing_territories += 1
+        if n_existing_territories <= 4:
+            print("The game is over!")
+
+        # advance the king num_spaces steps, counting only territories that are not None (have not been merged)
+        for step in range(num_spaces):
+            self.king = (self.king + 1) % self.n_territories # move at least once
+            while self.territories[self.king] is None:
+                self.king = (self.king + 1) % self.n_territories
+
+        # evaluate the result of the king's move (may initiate a merge)
         self.check_territory_owner(self.king, True)
 
     def check_territory_owner(self, terr_id, king = False):
-        """Takes in a territory ID and returns the team (0, 1, or 2) with the most cubes and castles."""
+        """Takes in a territory ID and returns the team (0, 1, or 2) with the most cubes and castles.
+            Also handles merging if the conditions arise.
+        """
         terr = self.territories[terr_id]
+
         prev_owner = terr.owner # used to check if the ownership changed
 
         # add up all cubes for each team
@@ -104,7 +124,7 @@ class Game():
 
         # indices of teams with most cubes and castles
         owners = [index for index, cubes in enumerate(total_cubes) if cubes == max(total_cubes)]
-        if len(owners) == 1:
+        if len(owners) == 1: # only if there is a single, undisputed owner
             terr.owner = owners[0] # the first (and only) element in the list
 
             if king: # an optional argument that will add a castle and check merging (use if the king is landing on this square)
@@ -123,19 +143,13 @@ class Game():
 
         if left_terr.owner == terr.owner and (left_terr.castles > 0 and terr.castles > 0):
             self.merge_territories(terr, left_terr)
-            self.territories.pop(left_terr_id) # remove it from the list
-            if left_terr_id < terr_id: # reposition the king if needed
-                self.king -= 1
+            self.territories[left_terr_id] = None # remove it from the list
 
         if right_terr.owner == terr.owner and (right_terr.castles > 0 and terr.castles > 0):
             self.merge_territories(terr, right_terr)
-            self.territories.pop(right_terr_id) # remove it from the list
-            if right_terr_id < terr_id: # reposition the king if needed
-                self.king -= 1
+            self.territories[right_terr_id] = None # remove it from the list
 
-    def merge_territories(self, terr_1, terr_2): # idx_1 and idx_2 are territory indices
-        # terr_1 = self.territories[idx_1]
-        # terr_2 = self.territories.pop(idx_2) # remove it from the list
+    def merge_territories(self, terr_1, terr_2): # terr_2 is to be removed; all pieces migrate to terr_1
 
         terr_1.cubes.add_cubeSet(terr_2.cubes)
         terr_1.castles += terr_2.castles
@@ -144,6 +158,8 @@ class Game():
     def check_castle_count(self):
         castle_counts = [0, 0, 0]
         for terr in self.territories:
+            if terr is None:
+                continue
             if terr.owner and terr.castles:
                 castle_counts[terr.owner] += terr.castles
         if max(castle_counts) > 10:

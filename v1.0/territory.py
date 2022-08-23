@@ -69,7 +69,7 @@ class Territory(pygame.sprite.Sprite):
 
     def clear(self):
         self.kill()
-        for cube in self.cubes():
+        for cube in self.cubes:
             cube.kill()
         self.can_draw = False
 
