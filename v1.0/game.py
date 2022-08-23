@@ -59,7 +59,7 @@ class Game():
         acting_player.replenish_cache(len(action.cube_actions))
 
         # perform king action: advance the king marker and check territory control
-        self.move_king(action.king)
+        # self.move_king(action.king) #TODO: uncomment this line
         self.whose_turn = self.next_player()
 
     def next_player(self):
@@ -132,7 +132,6 @@ class Game():
             self.territories.pop(right_terr_id) # remove it from the list
             if right_terr_id < terr_id: # reposition the king if needed
                 self.king -= 1
-
 
     def merge_territories(self, terr_1, terr_2): # idx_1 and idx_2 are territory indices
         # terr_1 = self.territories[idx_1]

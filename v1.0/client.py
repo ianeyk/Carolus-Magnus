@@ -27,6 +27,10 @@ class Client():
 
         self.setup_events()
 
+        self.r.update_game_state(self.game_state)
+        self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
+        self.flip_display()
+
 
 # def setup_network():
 #     n = Network()

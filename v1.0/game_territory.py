@@ -10,4 +10,5 @@ class GameTerritory():
         self.owner = None
 
     def __repr__(self) -> str:
-        return f"GameTerritory with size {self.size} and {self.castles} {GamePlayer.team_dict[self.owner]} castles"
+        # return f"GameTerritory with size {self.size} and {self.castles} {GamePlayer.team_dict[self.owner]} castles"
+        return f"GameTerritory <{self.cubes}>"

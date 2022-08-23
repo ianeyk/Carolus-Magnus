@@ -4,6 +4,7 @@ from cache import Cache
 from courtSection import CourtSection
 from cube import Cube
 from territory import Territory
+from game_state import GameState
 
 class Map(pygame.sprite.Sprite):
     outer_radius = 270 # 300
@@ -12,7 +13,7 @@ class Map(pygame.sprite.Sprite):
     ellipse_h_factor = 1
     ellipse_w_factor = 1
 
-    def __init__(self, x, y, game_territories):
+    def __init__(self, x, y, game_territories: GameState):
 
         self.x = x # center of the board
         self.y = y
@@ -33,10 +34,10 @@ class Map(pygame.sprite.Sprite):
             angle = 2 * math.pi / len(self.game_territories) * pos - math.pi / 2
             terr_x = self.x + (radius * math.cos(angle)) * Map.ellipse_w_factor
             terr_y = self.y + (radius * math.sin(angle)) * Map.ellipse_h_factor
-            territories.append(Territory(terr_x, terr_y, angle, 1))
+            territories.append(Territory(terr_x, terr_y, angle))
         return territories
 
-    def update(self, new_territories):
+    def update(self, new_territories): # : Optional[GameState] #TODO: look up correct typing for an object that can be either GameState or None
         for new_terr, terr in zip(new_territories, self.territories):
             if new_terr is None: # if a territory got merged
                 terr.clear()

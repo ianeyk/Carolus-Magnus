@@ -7,10 +7,10 @@ from game_territory import GameTerritory
 
 class Territory(pygame.sprite.Sprite):
     pngs = {
-        0: "./sprites/hexes/ruleBookTileA.png",
+        0: "./sprites/hexes/ruleBookTileA.png", # TODO: build tiles out of individual hexes using function
     }
     highlighted_pngs = {
-        0: "./sprites/hexes/tileA_highlight1.png"
+        0: "./sprites/hexes/tileA_highlight1.png" # TODO: build tiles out of individual hexes using function
     }
 
     spacing = 1.2
@@ -18,14 +18,14 @@ class Territory(pygame.sprite.Sprite):
     cube_dist = side_length * 2 / 3
     size = (3 * side_length * math.sqrt(3), side_length * 3.5)
 
-    def __init__(self, x, y, angle, starting_cube, terr_type = 0):
+    def __init__(self, x, y, angle, terr_type = 0):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
 
         self.x = x
         self.y = y
         self.angle = -angle + math.pi
         self.terr_type = terr_type
-        self.cube_list = [starting_cube]
+        self.cube_list = []
         self.placement_order = list(range(24))
         random.shuffle(self.placement_order)
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
@@ -50,11 +50,16 @@ class Territory(pygame.sprite.Sprite):
         new_cube_set = new_terr.cubes.get_cubes()
         for color_id in range(5):
             while new_cube_set[color_id] > current_cube_set.get(color_id, 0): # default value of 0
-                self.add_cube(6, color_id)
+                print("color is:", color_id)
+                print("current_cube_set is:", current_cube_set.get(color_id, 0))
+                print("new_cube_set is:", new_cube_set[color_id])
+                cube_coords = self.add_cube(6, color_id)
+                self.cubes.append(Cube(*cube_coords, color_id))
+                print("adding one more cube to this territory")
                 new_cube_set[color_id] -= 1
 
         # reset the temp_cube tracking
-        self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
+        self.temp_cube_list = [None] * 7 #TODO: change based on the number of players # I think this should also be 3?
 
     def clear(self):
         self.kill()
@@ -140,6 +145,7 @@ class Territory(pygame.sprite.Sprite):
 
     def add_cube(self, cube_id, color_id):
         found_empty_slot = False # initialize flag
+
         for idx, existing_color_id in enumerate(self.cube_list):
             if existing_color_id is None: # search for empty slots first before appending to the end
                 found_empty_slot = True
@@ -147,7 +153,7 @@ class Territory(pygame.sprite.Sprite):
 
         if not found_empty_slot:
             idx = len(self.cube_list) # the index of the subsequently appended cube (to avoid an off by -1 error)
-            self.cube_list.append(color_id) # needed to make the list one longer; will be redfined
+            self.cube_list.append(color_id) # needed to make the list one longer; will be redefined
         else:
             self.cube_list[idx] = color_id
         # in any case:

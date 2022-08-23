@@ -18,7 +18,7 @@ class GamePlayer():
         self.replenish_cache(7 if self.game.nPlayers in [2, 4] else 9)
 
     def __repr__(self):
-        return f"GamePlayer {self.player_number}, team {GamePlayer.team_dict[self.team]}"
+        return f"GamePlayer <number {self.player_number}, team {GamePlayer.team_dict[self.team]}>"
 
     def play_initiative(self, initiative):
         # check for valid initiative marker

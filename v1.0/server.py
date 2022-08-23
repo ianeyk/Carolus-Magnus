@@ -34,7 +34,6 @@ class Server():
         while True:
             try:
                 action = pickle.loads(self.conn.recv(2048))
-                print(action)
 
                 if not action:
                     print("Disconnected")

@@ -34,4 +34,4 @@ class CubeSet():
 
 
     def __repr__(self):
-        return f"<CubeSet with {self.cubes[0]} green, {self.cubes[1]} red, {self.cubes[2]} blue, {self.cubes[3]} yellow, {self.cubes[4]} pink>"
+        return f"CubeSet <{self.cubes[0]} green, {self.cubes[1]} red, {self.cubes[2]} blue, {self.cubes[3]} yellow, {self.cubes[4]} pink>"

@@ -26,7 +26,8 @@ class Action():
         self.king = king
 
     def __repr__(self) -> str:
-        return f"""Action <Player {self.player} made the following moves:
+        return \
+f"""Action <Player {self.player} made the following moves:
 {self.cube_actions[0]},
 {self.cube_actions[1]},
 {self.cube_actions[2]},

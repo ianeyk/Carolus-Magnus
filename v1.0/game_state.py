@@ -10,6 +10,11 @@ class GameState():
         self.territories = territories
         self.king = king
 
+    def __repr__(self) -> str:
+        return \
+f"""GameState <court: {self.court_control_list},
+territories: {self.territories}>"""
+
 
 
 
