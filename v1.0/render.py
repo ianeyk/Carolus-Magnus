@@ -39,6 +39,7 @@ class Render(pygame.sprite.Sprite):
         # self.terr = Territory(self.width / 2, self.height / 2, 0, 4)
 
     def update_game_state(self, game_state: GameState) -> None:
+        print("render is updating game state")
         for (player_area, game_player) in zip(self.player_areas, game_state.players):
             player_area.update(game_player)
         self.map.update(game_state.territories)

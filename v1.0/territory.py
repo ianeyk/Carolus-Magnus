@@ -46,13 +46,19 @@ class Territory(pygame.sprite.Sprite):
     #     self.owner = None
 
     def update(self, new_terr: GameTerritory):
-        current_cube_set = Counter(self.cube_list)
+        print("territory is updating game state")
+        self.remove_all_temp_cubes()
+        # current_cube_set = Counter(self.cube_list)
+        current_cube_set = Counter([c.ordinal_id for c in self.cubes])
+        print("cube set object", current_cube_set)
+        print("self.cubes is", self.cubes)
         new_cube_set = new_terr.cubes.get_cubes()
         for color_id in range(5):
+            print("color is:", color_id)
+            # print("current_cube_set is:", current_cube_set.get(color_id, 0))
+            print("current_cube_set is:", current_cube_set.get(color_id, 0))
+            print("new_cube_set is:", new_cube_set[color_id])
             while new_cube_set[color_id] > current_cube_set.get(color_id, 0): # default value of 0
-                print("color is:", color_id)
-                print("current_cube_set is:", current_cube_set.get(color_id, 0))
-                print("new_cube_set is:", new_cube_set[color_id])
                 cube_coords = self.add_cube(6, color_id)
                 self.cubes.append(Cube(*cube_coords, color_id))
                 print("adding one more cube to this territory")
@@ -166,3 +172,8 @@ class Territory(pygame.sprite.Sprite):
         self.cube_list[idx] = None
         self.temp_cube_list[cube_id] = None
         # print(self.temp_cube_list)
+
+    def remove_all_temp_cubes(self):
+        for cube_id, cube_list_idx in enumerate(self.temp_cube_list):
+            if cube_list_idx is not None:
+                self.remove_cube(cube_id)

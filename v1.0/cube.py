@@ -12,6 +12,9 @@ class Cube(Selectable):
     size = (15, 15) # 13.4 # 12 # 17
     highlight_scale_factor = 1.5
 
+    def __repr__(self) -> str:
+        return f"Cube <color {self.ordinal_id}>"
+
 class CacheCube(Cube):
     pngs = {
         0:"./sprites/cache_cubes/green_cube2.png",

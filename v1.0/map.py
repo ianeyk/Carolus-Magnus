@@ -38,6 +38,7 @@ class Map(pygame.sprite.Sprite):
         return territories
 
     def update(self, new_territories): # : Optional[GameState] #TODO: look up correct typing for an object that can be either GameState or None
+        print("map is updating game state")
         for new_terr, terr in zip(new_territories, self.territories):
             if new_terr is None: # if a territory got merged
                 terr.clear()
