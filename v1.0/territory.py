@@ -4,7 +4,7 @@ import random
 from collections import Counter
 from cube import Cube
 from game_territory import GameTerritory
-from territory_hex import TerritoryHex
+from territory_hex import TerritoryBorder, TerritoryHex
 
 class Territory(pygame.sprite.Sprite):
     pngs = {
@@ -27,17 +27,21 @@ class Territory(pygame.sprite.Sprite):
         self.angle = -angle + math.pi
         self.terr_type = terr_type
         self.cube_list = []
-        self.placement_order = list(range(24))
+        self.terr_size = terr_size # number of territories that have been merged together; multiply by 4 to get the number of hexes
+        self.hexes_per_unit_size = 7
+        self.cubes_per_hex = 3
+        self.max_num_cubes = terr_size * self.hexes_per_unit_size * self.cubes_per_hex
+        self.placement_order = list(range(self.max_num_cubes))
         random.shuffle(self.placement_order)
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
 
 
         self.hex_diameter = 38 # two times the side length
         self.hex_overlap_factor = 1.1 # coord radius gets divided by this number
-        self.terr_size = terr_size # number of territories that have been merged together; multiply by 4 to get the number of hexes
         self.coords_of_hexes = [] # auto-generation of hex patterns
         self.hex_coord_list = self.get_all_hex_coords()
         self.hex_sprites = []
+        self.border_sprites = []
 
         self.expand_hexes()
         self.all_cube_coords = self.get_all_cube_coords()
@@ -99,6 +103,8 @@ class Territory(pygame.sprite.Sprite):
             cube.add(group)
 
     def draw_hexes(self, group):
+        for border_sprite in self.border_sprites: # draw the borders first
+            border_sprite.add(group)
         for hex_sprite in self.hex_sprites:
             hex_sprite.add(group)
 
@@ -175,7 +181,7 @@ class Territory(pygame.sprite.Sprite):
     def expand_hexes(self):
         # total number of hexes to create
         prev_n_hexes = len(self.coords_of_hexes)
-        n_hexes = self.terr_size * 8
+        n_hexes = self.terr_size * self.hexes_per_unit_size
 
         if n_hexes <= prev_n_hexes:
             return
@@ -185,6 +191,7 @@ class Territory(pygame.sprite.Sprite):
             self.add_hex_sprite(self.hex_coord_list[i])
 
     def add_hex_sprite(self, coords):
+        self.border_sprites.append(TerritoryBorder(coords, self.hex_diameter * 1.2))
         self.hex_sprites.append(TerritoryHex(coords, self.hex_diameter, random.randrange(0, 6)))
 
     def how_many_rings(self, n_hexes):

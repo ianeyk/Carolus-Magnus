@@ -2,7 +2,36 @@ import pygame
 import math
 import random
 
-class TerritoryHex(pygame.sprite.Sprite):
+class HexSprite(pygame.sprite.Sprite):
+
+    pngs = {
+        0: "./sprites/hexes/topographic-map-tile01.png"
+    }
+
+    def __init__(self, coords, hex_diameter, background_style = 0, background_rotation = 0):
+        pygame.sprite.Sprite.__init__(self)
+        self.coords = coords
+        self.diameter = hex_diameter
+        self.background_style = background_style
+        self.background_rotation = background_rotation
+
+        self.set_image()
+
+    def clear(self):
+        self.kill()
+
+    def draw(self, group):
+        self.add(group)
+
+    def set_image(self):
+        png_image = pygame.image.load(self.pngs[self.background_style])
+
+        self.image = pygame.transform.smoothscale(png_image, (self.diameter, self.diameter))
+        self.image = pygame.transform.rotate(self.image, self.background_rotation * 60)
+
+        self.rect = self.image.get_rect(center = self.coords)
+
+class TerritoryHex(HexSprite):
 
     pngs = {
         0: "./sprites/hexes/topographic-map-tile01.png",
@@ -13,28 +42,13 @@ class TerritoryHex(pygame.sprite.Sprite):
         5: "./sprites/hexes/sand-dune-map-tile06.png",
     }
 
-    def __init__(self, coords, hex_diameter, background_style = 0):
-        pygame.sprite.Sprite.__init__(self)
-        self.coords = coords
-        self.diameter = hex_diameter
-        self.background_style = background_style
-        self.background_rotation = 0 if background_style == 5 else random.randrange(0, 6)
+    def __init__(self, coords, hex_diameter, background_style = 0, background_rotation = 0):
+        HexSprite.__init__(self, coords, hex_diameter, background_style, background_rotation)
+        if self.background_style == 5:
+            self.background_rotation = 0
 
-        png_image = pygame.image.load(self.pngs[self.background_style]) #TODO: randomly select from textured pngs
-        self.set_image(png_image)
-
-    def clear(self):
-        self.kill()
-
-    def draw(self, group):
-        self.add(group)
-
-    def set_image(self, image, size = None):
-        self.image = pygame.transform.smoothscale(image, (self.diameter, self.diameter))
-        self.image = pygame.transform.rotate(self.image, self.background_rotation * 60)
-        # self.image = pygame.transform.rotate(self.image, math.degrees(self.angle))
-
-        self.rect = self.image.get_rect(center = self.coords)
+        png_image = pygame.image.load(self.pngs[self.background_style])
+        self.set_image()
 
     def get_cube_slots(self):
         cube_coords = []
@@ -45,3 +59,18 @@ class TerritoryHex(pygame.sprite.Sprite):
                 self.coords[1] + math.sin(theta) * self.diameter / 2
             ))
         return cube_coords
+
+class TerritoryBorder(HexSprite):
+
+    pngs = {
+        0: "./sprites/hexes/border_color_hex.png",
+        1: "./sprites/hexes/selected_color_hex.png",
+    }
+
+    def highlight(self):
+        self.background_style = 1
+        self.set_image()
+
+    def un_highlight(self):
+        self.background_style = 0
+        self.set_image()
