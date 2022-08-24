@@ -10,8 +10,8 @@ class Map(pygame.sprite.Sprite):
     outer_radius = 270 # 300
     inner_radius = 270 # 300
     third_radius = 270 # 300
-    ellipse_h_factor = 1
-    ellipse_w_factor = 1
+    ellipse_h_factor = 1.1
+    ellipse_w_factor = 1.05
 
     def __init__(self, x, y, game_territories: GameState):
 

@@ -31,7 +31,8 @@ class Territory(pygame.sprite.Sprite):
         random.shuffle(self.placement_order)
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
 
-        self.hex_diameter = 30 # two times the side length
+        self.hex_diameter = 38 # two times the side length
+        self.hex_overlap_factor = 1.1 # coord radius gets divided by this number
         self.terr_size = terr_size # number of territories that have been merged together; multiply by 4 to get the number of hexes
         self.coords_of_hexes = [] # auto-generation of hex patterns
         self.hex_coord_list = self.get_all_hex_coords()
@@ -226,8 +227,8 @@ class Territory(pygame.sprite.Sprite):
 
         ring_hex_coords = []
         for i in range(n_rings):
-            one_sixth_hex_coord_x = (n_rings - cos60 * i) * self.hex_diameter
-            one_sixth_hex_coord_y = (sin60 * i) * self.hex_diameter
+            one_sixth_hex_coord_x = (n_rings - cos60 * i) * self.hex_diameter / self.hex_overlap_factor
+            one_sixth_hex_coord_y = (sin60 * i) * self.hex_diameter / self.hex_overlap_factor
             for j in range(6):
                 theta = 2 * math.pi / 6 * j
                 ring_hex_coords.append((
