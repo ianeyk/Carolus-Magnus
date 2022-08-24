@@ -49,7 +49,7 @@ class Territory(pygame.sprite.Sprite):
 
         self.cubes = []
         for loc, color_id in enumerate(self.cube_list):
-            self.cubes.append(Cube(*self.coords_of_cube(self.placement_order[loc]), color_id))
+            self.cubes.append(Cube(*self.coords_of_cube(loc), color_id))
 
     # def __init__(self, starting_cube):
     #     self.size = 1
@@ -86,42 +86,14 @@ class Territory(pygame.sprite.Sprite):
             cube.kill()
         self.can_draw = False
 
-    def coords_of_cube(self, loc):
-        # assert(loc < 24) # fails for more cubes on one hex
-        # which_hex = loc // 6
-        # intra_hex_loc = loc % 6
-        # rotated_coords = self.intra_hex_coords(*self.hex_coords(which_hex), intra_hex_loc) # returns x, y coordinates of the cube location
-        # return rotated_coords
-
-        return self.all_cube_coords[loc]
+    def coords_of_cube(self, loc): # takes care of shuffled placement order
+        return self.all_cube_coords[self.placement_order[loc]]
 
     def get_all_cube_coords(self):
         coords = []
         for hex in self.hex_sprites:
             coords.extend(hex.get_cube_slots())
         return coords
-
-
-    def intra_hex_coords(self, center_x, center_y, pos): # pos starts at the top and moves clockwise
-        # radius = Cube.size[0] * Territory.spacing
-        # cube_angle = math.pi - math.pi / 6 + math.pi * 2 / 6 * pos - self.angle
-        # intra_hex_x = center_x + radius * math.cos(cube_angle)
-        # intra_hex_y = center_y + radius * math.sin(cube_angle)
-        # return intra_hex_x, intra_hex_y
-        return None
-
-    def hex_coords(self, which_hex):
-        # if self.terr_type == 0:
-        #     if which_hex in [0, 1, 2]:
-        #         hex_x = self.x + (which_hex - 1) * Territory.side_length * math.sqrt(3)
-        #         hex_y = self.y + 0.75 * Territory.side_length
-        #     else:
-        #         hex_x = self.x - Territory.side_length * math.sqrt(3) / 2
-        #         hex_y = self.y - 0.75 * Territory.side_length
-        # rotated = (self.x + (hex_x - self.x) *  math.cos(self.angle) + (hex_y - self.y) * math.sin(self.angle),
-        #            self.y + (hex_x - self.x) * -math.sin(self.angle) + (hex_y - self.y) * math.cos(self.angle))
-        # return rotated
-        return self.coords_of_hexes[which_hex]
 
     def draw(self, group):
         if self.can_draw:
@@ -194,7 +166,7 @@ class Territory(pygame.sprite.Sprite):
         # in any case:
         self.temp_cube_list[cube_id] = idx
         # print(self.temp_cube_list)
-        return self.coords_of_cube(self.placement_order[idx])
+        return self.coords_of_cube(idx)
 
     def remove_cube(self, cube_id):
         idx = self.temp_cube_list[cube_id]
