@@ -51,13 +51,6 @@ class Territory(pygame.sprite.Sprite):
         for loc, color_id in enumerate(self.cube_list):
             self.cubes.append(Cube(*self.coords_of_cube(loc), color_id))
 
-    # def __init__(self, starting_cube):
-    #     self.size = 1
-    #     self.cubes = CubeSet()
-    #     self.cubes.add_cube(starting_cube)
-    #     self.castles = 0
-    #     self.owner = None
-
     def update(self, new_terr: GameTerritory):
         print("territory is updating game state")
         self.remove_all_temp_cubes()
