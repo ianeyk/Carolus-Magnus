@@ -31,13 +31,17 @@ class Territory(pygame.sprite.Sprite):
         random.shuffle(self.placement_order)
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
 
+
         self.hex_diameter = 38 # two times the side length
         self.hex_overlap_factor = 1.1 # coord radius gets divided by this number
         self.terr_size = terr_size # number of territories that have been merged together; multiply by 4 to get the number of hexes
         self.coords_of_hexes = [] # auto-generation of hex patterns
         self.hex_coord_list = self.get_all_hex_coords()
         self.hex_sprites = []
+
         self.expand_hexes()
+        self.all_cube_coords = self.get_all_cube_coords()
+
 
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
@@ -83,30 +87,41 @@ class Territory(pygame.sprite.Sprite):
         self.can_draw = False
 
     def coords_of_cube(self, loc):
-        assert(loc <= 24) # fails for more cubes on one hex
-        which_hex = loc // 6
-        intra_hex_loc = loc % 6
-        rotated_coords = self.intra_hex_coords(*self.hex_coords(which_hex), intra_hex_loc) # returns x, y coordinates of the cube location
-        return rotated_coords
+        # assert(loc < 24) # fails for more cubes on one hex
+        # which_hex = loc // 6
+        # intra_hex_loc = loc % 6
+        # rotated_coords = self.intra_hex_coords(*self.hex_coords(which_hex), intra_hex_loc) # returns x, y coordinates of the cube location
+        # return rotated_coords
+
+        return self.all_cube_coords[loc]
+
+    def get_all_cube_coords(self):
+        coords = []
+        for hex in self.hex_sprites:
+            coords.extend(hex.get_cube_slots())
+        return coords
+
 
     def intra_hex_coords(self, center_x, center_y, pos): # pos starts at the top and moves clockwise
-        radius = Cube.size[0] * Territory.spacing
-        cube_angle = math.pi - math.pi / 6 + math.pi * 2 / 6 * pos - self.angle
-        intra_hex_x = center_x + radius * math.cos(cube_angle)
-        intra_hex_y = center_y + radius * math.sin(cube_angle)
-        return intra_hex_x, intra_hex_y
+        # radius = Cube.size[0] * Territory.spacing
+        # cube_angle = math.pi - math.pi / 6 + math.pi * 2 / 6 * pos - self.angle
+        # intra_hex_x = center_x + radius * math.cos(cube_angle)
+        # intra_hex_y = center_y + radius * math.sin(cube_angle)
+        # return intra_hex_x, intra_hex_y
+        return None
 
     def hex_coords(self, which_hex):
-        if self.terr_type == 0:
-            if which_hex in [0, 1, 2]:
-                hex_x = self.x + (which_hex - 1) * Territory.side_length * math.sqrt(3)
-                hex_y = self.y + 0.75 * Territory.side_length
-            else:
-                hex_x = self.x - Territory.side_length * math.sqrt(3) / 2
-                hex_y = self.y - 0.75 * Territory.side_length
-        rotated = (self.x + (hex_x - self.x) *  math.cos(self.angle) + (hex_y - self.y) * math.sin(self.angle),
-                   self.y + (hex_x - self.x) * -math.sin(self.angle) + (hex_y - self.y) * math.cos(self.angle))
-        return rotated
+        # if self.terr_type == 0:
+        #     if which_hex in [0, 1, 2]:
+        #         hex_x = self.x + (which_hex - 1) * Territory.side_length * math.sqrt(3)
+        #         hex_y = self.y + 0.75 * Territory.side_length
+        #     else:
+        #         hex_x = self.x - Territory.side_length * math.sqrt(3) / 2
+        #         hex_y = self.y - 0.75 * Territory.side_length
+        # rotated = (self.x + (hex_x - self.x) *  math.cos(self.angle) + (hex_y - self.y) * math.sin(self.angle),
+        #            self.y + (hex_x - self.x) * -math.sin(self.angle) + (hex_y - self.y) * math.cos(self.angle))
+        # return rotated
+        return self.coords_of_hexes[which_hex]
 
     def draw(self, group):
         if self.can_draw:
@@ -195,7 +210,7 @@ class Territory(pygame.sprite.Sprite):
     def expand_hexes(self):
         # total number of hexes to create
         prev_n_hexes = len(self.coords_of_hexes)
-        n_hexes = self.terr_size * 4
+        n_hexes = self.terr_size * 8
 
         if n_hexes <= prev_n_hexes:
             return

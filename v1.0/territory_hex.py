@@ -26,3 +26,13 @@ class TerritoryHex(pygame.sprite.Sprite):
         # self.image = pygame.transform.rotate(self.image, math.degrees(self.angle))
 
         self.rect = self.image.get_rect(center = self.coords)
+
+    def get_cube_slots(self):
+        cube_coords = []
+        for i in range(3):
+            theta = 2 * math.pi / 3 * i # - math.pi / 6
+            cube_coords.append((
+                self.coords[0] + math.cos(theta) * self.diameter / 2,
+                self.coords[1] + math.sin(theta) * self.diameter / 2
+            ))
+        return cube_coords
