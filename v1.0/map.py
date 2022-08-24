@@ -50,6 +50,7 @@ class Map(pygame.sprite.Sprite):
     def draw(self, group):
         for territory in self.territories:
             territory.draw(group)
+            # break # TODO: remove this break; it's only for debugging
         return group
 
     def select_territory(self, which_terr):

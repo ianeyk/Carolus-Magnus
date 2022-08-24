@@ -4,6 +4,7 @@ import random
 from collections import Counter
 from cube import Cube
 from game_territory import GameTerritory
+from territory_hex import TerritoryHex
 
 class Territory(pygame.sprite.Sprite):
     pngs = {
@@ -18,7 +19,7 @@ class Territory(pygame.sprite.Sprite):
     cube_dist = side_length * 2 / 3
     size = (3 * side_length * math.sqrt(3), side_length * 3.5)
 
-    def __init__(self, x, y, angle, terr_type = 0):
+    def __init__(self, x, y, angle, terr_type = 0, terr_size = 1):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
 
         self.x = x
@@ -29,6 +30,13 @@ class Territory(pygame.sprite.Sprite):
         self.placement_order = list(range(24))
         random.shuffle(self.placement_order)
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
+
+        self.hex_diameter = 30 # two times the side length
+        self.terr_size = terr_size # number of territories that have been merged together; multiply by 4 to get the number of hexes
+        self.coords_of_hexes = [] # auto-generation of hex patterns
+        self.hex_coord_list = self.get_all_hex_coords()
+        self.hex_sprites = []
+        self.expand_hexes()
 
         png_image = pygame.image.load(Territory.pngs[self.terr_type])
         self.set_image(png_image)
@@ -101,12 +109,17 @@ class Territory(pygame.sprite.Sprite):
 
     def draw(self, group):
         if self.can_draw:
-            self.add(group)
+            # self.add(group)
+            self.draw_hexes(group)
             self.draw_cubes(group)
 
     def draw_cubes(self, group):
         for cube in self.cubes:
             cube.add(group)
+
+    def draw_hexes(self, group):
+        for hex_sprite in self.hex_sprites:
+            hex_sprite.add(group)
 
     def set_image(self, image, size = None):
         if not size:
@@ -177,3 +190,58 @@ class Territory(pygame.sprite.Sprite):
         for cube_id, cube_list_idx in enumerate(self.temp_cube_list):
             if cube_list_idx is not None:
                 self.remove_cube(cube_id)
+
+    def expand_hexes(self):
+        # total number of hexes to create
+        prev_n_hexes = len(self.coords_of_hexes)
+        n_hexes = self.terr_size * 4
+
+        if n_hexes <= prev_n_hexes:
+            return
+
+        self.coords_of_hexes = self.hex_coord_list[:n_hexes]
+        for i in range(prev_n_hexes, n_hexes):
+            self.add_hex_sprite(self.hex_coord_list[i])
+
+    def add_hex_sprite(self, coords):
+        self.hex_sprites.append(TerritoryHex(coords, self.hex_diameter))
+
+    def how_many_rings(self, n_hexes):
+        # number of concentric rings of hexes that will be required (center hex counts as ring #0)
+        n_rings = 0
+        while n_hexes > (n_rings * (n_rings + 1) / 2 * 6 + 1):
+            n_rings += 1
+        return n_rings
+
+    def get_all_hex_coords_in_ring(self, n_rings):
+        # compute the coordinates for hexes lying along the outermost ring; assume all inner rings have been filled
+        if n_rings == 0:
+            ring_hex_coords = [(self.x, self.y)]
+            return ring_hex_coords
+        # else:
+
+        # avoid repeated sin and cosine calculations
+        sin60 = math.sin(math.radians(60))
+        cos60 = 1/2 # math.cos(60)
+
+        ring_hex_coords = []
+        for i in range(n_rings):
+            one_sixth_hex_coord_x = (n_rings - cos60 * i) * self.hex_diameter
+            one_sixth_hex_coord_y = (sin60 * i) * self.hex_diameter
+            for j in range(6):
+                theta = 2 * math.pi / 6 * j
+                ring_hex_coords.append((
+                    self.x + one_sixth_hex_coord_x * math.cos(theta)      + one_sixth_hex_coord_y * math.sin(theta),
+                    self.y + one_sixth_hex_coord_x * math.sin(theta) * -1 + one_sixth_hex_coord_y * math.cos(theta)
+                ))
+
+        return ring_hex_coords
+
+    def get_all_hex_coords(self):
+        hex_coords_list = []
+        for ring in range(self.how_many_rings(100) + 1): # will never reach this limit
+            ring_coords_list = self.get_all_hex_coords_in_ring(ring)
+            random.shuffle(ring_coords_list)
+            hex_coords_list.extend(ring_coords_list)
+
+        return hex_coords_list
