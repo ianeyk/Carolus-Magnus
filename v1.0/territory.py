@@ -14,10 +14,10 @@ class Territory(pygame.sprite.Sprite):
         0: "./sprites/hexes/tileA_highlight1.png" # TODO: build tiles out of individual hexes using function
     }
 
-    spacing = 1.2
-    side_length = Cube.size[0] * spacing * 1.8
-    cube_dist = side_length * 2 / 3
-    size = (3 * side_length * math.sqrt(3), side_length * 3.5)
+    # spacing = 1.2
+    # side_length = Cube.size[0] * spacing * 1.8
+    # cube_dist = side_length * 2 / 3
+    # size = (3 * side_length * math.sqrt(3), side_length * 3.5)
 
     def __init__(self, x, y, angle, terr_type = 0, terr_size = 1):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
@@ -28,7 +28,7 @@ class Territory(pygame.sprite.Sprite):
         self.terr_type = terr_type
         self.cube_list = []
         self.terr_size = terr_size # number of territories that have been merged together; multiply by 4 to get the number of hexes
-        self.hexes_per_unit_size = 7
+        self.hexes_per_unit_size = 4
         self.cubes_per_hex = 3
         self.max_num_cubes = terr_size * self.hexes_per_unit_size * self.cubes_per_hex
         self.placement_order = list(range(self.max_num_cubes))
@@ -46,14 +46,17 @@ class Territory(pygame.sprite.Sprite):
         self.expand_hexes()
         self.all_cube_coords = self.get_all_cube_coords()
 
+        self.empty_spaces_to_my_left = 0
+        self.empty_spaces_to_my_right = 0
 
-        png_image = pygame.image.load(Territory.pngs[self.terr_type])
-        self.set_image(png_image)
+        # png_image = pygame.image.load(Territory.pngs[self.terr_type])
+        # self.set_image(png_image)
         self.can_draw = True # set to False if the territory disappears because of merging
 
         self.cubes = []
         for loc, color_id in enumerate(self.cube_list):
             self.cubes.append(Cube(*self.coords_of_cube(loc), color_id))
+
 
     def update(self, new_terr: GameTerritory):
         print("territory is updating game state")
@@ -78,9 +81,13 @@ class Territory(pygame.sprite.Sprite):
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players # I think this should also be 3?
 
     def clear(self):
-        self.kill()
+        # self.kill()
         for cube in self.cubes:
             cube.kill()
+        for hex in self.hex_sprites:
+            hex.clear()
+        for border in self.border_sprites:
+            border.clear()
         self.can_draw = False
 
     def coords_of_cube(self, loc): # takes care of shuffled placement order
@@ -103,18 +110,18 @@ class Territory(pygame.sprite.Sprite):
             cube.add(group)
 
     def draw_hexes(self, group):
-        for border_sprite in self.border_sprites: # draw the borders first
-            border_sprite.add(group)
-        for hex_sprite in self.hex_sprites:
-            hex_sprite.add(group)
+        for border in self.border_sprites: # draw the borders first
+            border.add(group)
+        for hex in self.hex_sprites:
+            hex.add(group)
 
-    def set_image(self, image, size = None):
-        if not size:
-            size = Territory.size
-        self.image = pygame.transform.smoothscale(image, size)
-        self.image = pygame.transform.rotate(self.image, math.degrees(self.angle))
+    # def set_image(self, image, size = None):
+    #     if not size:
+    #         size = Territory.size
+    #     self.image = pygame.transform.smoothscale(image, size)
+    #     self.image = pygame.transform.rotate(self.image, math.degrees(self.angle))
 
-        self.rect = self.image.get_rect(center = (self.x, self.y))
+    #     self.rect = self.image.get_rect(center = (self.x, self.y))
 
     def highlight(self):
         for border in self.border_sprites:
@@ -169,6 +176,20 @@ class Territory(pygame.sprite.Sprite):
         for cube_id, cube_list_idx in enumerate(self.temp_cube_list):
             if cube_list_idx is not None:
                 self.remove_cube(cube_id)
+
+    def move_xy(self, x, y):
+        self.x = x
+        self.y = y
+        for hex in self.hex_sprites:
+            hex.move_center(x, y)
+        for border in self.border_sprites:
+            border.move_center(x, y)
+
+        self.all_cube_coords = self.get_all_cube_coords()
+
+        for idx, cube in enumerate(self.cubes):
+            cube.update_pos(self.coords_of_cube(idx))
+
 
     def expand_hexes(self):
         # total number of hexes to create

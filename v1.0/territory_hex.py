@@ -31,6 +31,10 @@ class HexSprite(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect(center = self.coords)
 
+    def move_center(self, x, y):
+        self.coords = (x, y)
+        self.rect = self.image.get_rect(center = self.coords)
+
 class TerritoryHex(HexSprite):
 
     pngs = {

@@ -39,11 +39,26 @@ class Map(pygame.sprite.Sprite):
 
     def update(self, new_territories): # : Optional[GameState] #TODO: look up correct typing for an object that can be either GameState or None
         print("map is updating game state")
+
+        # initialize counters
+        empty_terr_count = 0
+        last_non_empty_terr = None
+
         for new_terr, terr in zip(new_territories, self.territories):
             if new_terr is None: # if a territory got merged
                 terr.clear()
+                empty_terr_count += 1
             else:
+                if empty_terr_count > 0:
+                    terr.empty_spaces_to_my_left = empty_terr_count
+                if last_non_empty_terr is not None:
+                    last_non_empty_terr.empty_spaces_to_my_right = empty_terr_count
+
                 terr.update(new_terr)
+                last_non_empty_terr = terr
+
+        if empty_terr_count > 0: #TODO: also check for first territory
+            terr.empty_spaces_to_my_left = empty_terr_count
 
 
 
