@@ -220,7 +220,7 @@ class Territory(pygame.sprite.Sprite):
             self.add_hex_sprite(self.hex_coord_list[i])
 
     def add_hex_sprite(self, coords):
-        self.hex_sprites.append(TerritoryHex(coords, self.hex_diameter))
+        self.hex_sprites.append(TerritoryHex(coords, self.hex_diameter, random.randrange(0, 6)))
 
     def how_many_rings(self, n_hexes):
         # number of concentric rings of hexes that will be required (center hex counts as ring #0)
