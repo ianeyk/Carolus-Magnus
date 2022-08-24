@@ -117,20 +117,12 @@ class Territory(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (self.x, self.y))
 
     def highlight(self):
-        highlighted_image = pygame.image.load(Territory.highlighted_pngs[self.terr_type])
-        scale_factor = 1.1
-        self.set_image(highlighted_image, size = (Territory.size[0] * scale_factor, Territory.size[1] * scale_factor))
-
-        new_rect = self.image.get_rect(center = (self.x, self.y))
-        return (new_rect.x, new_rect.y, new_rect.w, new_rect.h)
+        for border in self.border_sprites:
+            border.highlight()
 
     def un_highlight(self):
-        # store the large rect for updated_rect purposes
-        prev_rect = self.image.get_rect(center = (self.x, self.y))
-
-        png_image = pygame.image.load(Territory.pngs[self.terr_type])
-        self.set_image(png_image)
-        return prev_rect
+        for border in self.border_sprites:
+            border.un_highlight()
 
 
     # Each Territory object contains two lists of cube locations.
