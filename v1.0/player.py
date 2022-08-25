@@ -156,7 +156,7 @@ class Player():
         elif self.selection_mode == Player.SelectionType.TERRITORIES:
             self.select_territory(event)
         elif self.selection_mode == Player.SelectionType.KING:
-            self.select_king(event)
+            return self.select_king(event)
         elif self.selection_mode == Player.SelectionType.END_TURN:
             return self.return_actions()
         # else:
@@ -225,6 +225,7 @@ class Player():
             if self.check_king_movement():
                 self.render.king.un_highlight()
                 self.selection_mode = Player.SelectionType.END_TURN
+                return self.return_actions()
             else:
                 print("Please move the King at least one space")
 

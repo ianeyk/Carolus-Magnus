@@ -10,6 +10,11 @@ from territory_hex import King
 
 class Render(pygame.sprite.Sprite):
 
+    pngs = {
+        0: "./sprites/background1.png",
+        1: "./sprites/background_your_turn.png"
+    }
+
     def __init__(self, width: int, height: int, game_state: GameState) -> None:
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
 
@@ -18,8 +23,7 @@ class Render(pygame.sprite.Sprite):
         self.game_state = game_state
         self.nPlayers = game_state.nPlayers
 
-        png_image = pygame.image.load("./sprites/background1.png")
-        self.image = pygame.transform.smoothscale(png_image, (width, height))
+        self.set_image(0)
         self.rect = (0, 0, *PlayerArea.size)
 
         # initialize player boards
@@ -44,6 +48,9 @@ class Render(pygame.sprite.Sprite):
         self.king_width = 35
         self.king = King((self.map.territories[self.king_loc].x, self.map.territories[self.king_loc].y), self.king_width)
 
+    def set_image(self, i):
+        png_image = pygame.image.load(self.pngs[i])
+        self.image = pygame.transform.smoothscale(png_image, (self.width, self.height))
 
     def update_game_state(self, game_state: GameState) -> None:
         print("render is updating game state")
