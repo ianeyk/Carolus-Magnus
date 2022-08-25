@@ -5,6 +5,7 @@ from playerArea import PlayerArea
 from territory import Territory
 from map import Map
 from game_state import GameState
+from groups import Groups
 
 class Render(pygame.sprite.Sprite):
 
@@ -45,9 +46,9 @@ class Render(pygame.sprite.Sprite):
         self.map.update(game_state.territories)
     # def __init__(self, nPlayers, whose_turn, players, court_control_list, territories, king):
 
-    def draw(self, group: pygame.sprite.Group) -> None:
-        self.add(group)
-        self.map.draw(group)
+    def draw(self, groups: Groups) -> None:
+        self.add(groups.background_group)
+        self.map.draw(groups)
         # self.terr.draw(group)
         for player_area in self.player_areas:
-            player_area.draw(group)
+            player_area.draw(groups)

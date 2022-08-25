@@ -3,6 +3,7 @@ import pygame
 from network import Network
 from player import Player
 from render import Render
+from groups import Groups
 
 class Client():
     def __init__(self, width: int, height: int) -> None:
@@ -23,7 +24,8 @@ class Client():
 
         self.display = self.setup_display(self.width, self.height)
         self.clock = pygame.time.Clock()
-        self.group = pygame.sprite.Group()
+        # self.group = pygame.sprite.Group()
+        self.groups = Groups(self.display)
 
         self.setup_events()
 
@@ -52,8 +54,8 @@ class Client():
     def flip_display(self):
         if self.game_state.whose_turn == self.player_number:
             updated_rects = self.p1_render.select_cube(0)
-        self.r.draw(self.group) # draw the initial board
-        self.group.draw(self.display)
+        self.r.draw(self.groups) # draw the initial board
+        self.groups.draw()
         pygame.display.flip()
 
     def on_quit(self):
@@ -95,7 +97,7 @@ class Client():
 
             updated_rects = self.p1.select(event)
             # p1.player_render.cache.draw_cubes(group)
-            self.group.draw(self.display)
+            self.groups.draw()
             # pygame.display.update(updated_rects)
             pygame.display.flip()
 

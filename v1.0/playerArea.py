@@ -3,6 +3,7 @@ import math
 from cache import Cache
 from courtSection import CourtSection
 from token_set import TokenSet
+from groups import Groups
 
 class PlayerArea(pygame.sprite.Sprite):
     """Draws a complete Player Area, including the court and the cache."""
@@ -50,11 +51,11 @@ class PlayerArea(pygame.sprite.Sprite):
         self.cache_list = sorted(game_player.cache.get_cube_list())
         self.cache.update(self.cache_list)
 
-    def draw(self, group):
-        self.add(group)
-        self.draw_court(group)
-        self.cache.draw_cubes(group)
-        self.token_set.draw(group)
+    def draw(self, groups: Groups):
+        self.add(groups.player_area_group)
+        self.draw_court(groups.player_area_group)
+        self.cache.draw_cubes(groups.cubes_group)
+        self.token_set.draw(groups.cubes_group)
 
     def draw_court(self, group):
         for court_section in self.court_sections:

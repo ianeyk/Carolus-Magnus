@@ -1,3 +1,4 @@
+from email.headerregistry import Group
 import pygame
 import math
 from cache import Cache
@@ -5,6 +6,7 @@ from courtSection import CourtSection
 from cube import Cube
 from territory import Territory
 from game_state import GameState
+from groups import Groups
 
 class Map(pygame.sprite.Sprite):
     outer_radius = 270 # 300
@@ -87,8 +89,7 @@ class Map(pygame.sprite.Sprite):
 
     def update_empty_spaces(self, which_terr):
         displacement = self.territories[which_terr].empty_spaces_to_my_right - self.territories[which_terr].empty_spaces_to_my_left
-        self.territories[which_terr].move_xy(*self.get_xy_by_angle_index(which_terr + displacement / 2))
-
+        self.territories[which_terr].move_xy(*self.get_xy_by_angle_index(which_terr + displacement / 3))
 
     def update_empty_spaces_left(self, which_terr, new_left_val):
         if new_left_val > self.territories[which_terr].empty_spaces_to_my_left: # if it changed from the last time
@@ -100,11 +101,9 @@ class Map(pygame.sprite.Sprite):
             self.territories[which_terr].empty_spaces_to_my_right = new_right_val
             self.update_empty_spaces(which_terr)
 
-    def draw(self, group):
+    def draw(self, groups: Groups):
         for territory in self.territories:
-            territory.draw(group)
-            # break # TODO: remove this break; it's only for debugging
-        return group
+            territory.draw(groups)
 
     def select_territory(self, which_terr):
         updated_rects = []

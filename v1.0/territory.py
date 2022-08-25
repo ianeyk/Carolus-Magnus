@@ -1,3 +1,4 @@
+from email.headerregistry import Group
 import pygame
 import math
 import random
@@ -5,6 +6,7 @@ from collections import Counter
 from cube import Cube
 from game_territory import GameTerritory
 from territory_hex import TerritoryBorder, TerritoryHex
+from groups import Groups
 
 class Territory(pygame.sprite.Sprite):
     pngs = {
@@ -76,8 +78,11 @@ class Territory(pygame.sprite.Sprite):
                 print("adding one more cube to this territory")
                 new_cube_set[color_id] -= 1
 
+        self.terr_size = new_terr.size
+        self.expand_hexes() #TODO: uncomment
+
         # reset the temp_cube tracking
-        self.temp_cube_list = [None] * 7 #TODO: change based on the number of players # I think this should also be 3?
+        self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
 
     def clear(self):
         # self.kill()
@@ -89,6 +94,14 @@ class Territory(pygame.sprite.Sprite):
             border.clear()
         self.can_draw = False
 
+    def clear_hexes(self):
+        for hex in self.hex_sprites:
+            hex.clear()
+        self.hex_sprites = []
+        for border in self.border_sprites:
+            border.clear()
+        self.border_sprites = []
+
     def coords_of_cube(self, loc): # takes care of shuffled placement order
         return self.all_cube_coords[self.placement_order[loc]]
 
@@ -98,21 +111,21 @@ class Territory(pygame.sprite.Sprite):
             coords.extend(hex.get_cube_slots())
         return coords
 
-    def draw(self, group):
+    def draw(self, groups):
         if self.can_draw:
             # self.add(group)
-            self.draw_hexes(group)
-            self.draw_cubes(group)
+            self.draw_hexes(groups)
+            self.draw_cubes(groups)
 
-    def draw_cubes(self, group):
+    def draw_cubes(self, groups: Groups):
         for cube in self.cubes:
-            cube.add(group)
+            cube.add(groups.cubes_group)
 
-    def draw_hexes(self, group):
+    def draw_hexes(self, groups: Groups):
         for border in self.border_sprites: # draw the borders first
-            border.add(group)
+            border.add(groups.borders_group)
         for hex in self.hex_sprites:
-            hex.add(group)
+            hex.add(groups.hex_group)
 
     # def set_image(self, image, size = None):
     #     if not size:
@@ -204,8 +217,11 @@ class Territory(pygame.sprite.Sprite):
         if n_hexes <= prev_n_hexes:
             return
 
+        # self.clear_hexes()
+
         self.coords_of_hexes = self.hex_coord_list[:n_hexes]
         for i in range(prev_n_hexes, n_hexes):
+        # for i in range(n_hexes):
             self.add_hex_sprite(self.hex_coord_list[i])
 
     def add_hex_sprite(self, coords):
