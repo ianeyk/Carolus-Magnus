@@ -21,12 +21,13 @@ class Territory(): # pygame.sprite.Sprite):
     # cube_dist = side_length * 2 / 3
     # size = (3 * side_length * math.sqrt(3), side_length * 3.5)
 
-    def __init__(self, x, y, angle = 0):
+    def __init__(self, x, y, outer_angle_index, outer_radius):
         # pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
 
         self.x = x
         self.y = y
-        self.angle = -angle + math.pi
+        self.outer_angle_index = outer_angle_index
+        self.outer_radius = outer_radius
         self.cube_list = []
         self.terr_size = 1 # number of territories that have been merged together; multiply by 4 to get the number of hexes
         self.hexes_per_unit_size = 4

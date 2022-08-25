@@ -8,6 +8,7 @@ class Groups():
         self.hex_group = pygame.sprite.Group()
         self.player_area_group = pygame.sprite.Group()
         self.castles = pygame.sprite.Group()
+        self.king = pygame.sprite.Group()
         self.initiative_tokens = pygame.sprite.Group()
 
         self.display = display
@@ -19,5 +20,6 @@ class Groups():
         self.hex_group.draw(self.display)
         self.player_area_group.draw(self.display)
         self.initiative_tokens.draw(self.display)
+        self.king.draw(self.display)
         self.castles.draw(self.display)
         self.cubes_group.draw(self.display)

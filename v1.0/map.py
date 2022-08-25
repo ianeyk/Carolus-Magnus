@@ -36,7 +36,7 @@ class Map(pygame.sprite.Sprite):
             angle = 2 * math.pi / len(self.game_territories) * pos - math.pi / 2
             terr_x = self.x + (radius * math.cos(angle)) * Map.ellipse_w_factor
             terr_y = self.y + (radius * math.sin(angle)) * Map.ellipse_h_factor
-            territories.append(Territory(*self.get_xy_by_angle_index(pos), self.get_angle_by_index(pos)))
+            territories.append(Territory(*self.get_xy_by_angle_index(pos), pos, self.outer_radius))
         return territories
 
     def get_angle_by_index(self, pos): # pos can either be an int or float
@@ -90,9 +90,11 @@ class Map(pygame.sprite.Sprite):
                 break # break after finding the first non-empty territory for the second time
 
     def update_empty_spaces(self, which_terr):
-        displacement = self.territories[which_terr].empty_spaces_to_my_right - self.territories[which_terr].empty_spaces_to_my_left
-        new_radius = self.outer_radius - 10 * (self.territories[which_terr].empty_spaces_to_my_right + self.territories[which_terr].empty_spaces_to_my_left)
-        self.territories[which_terr].move_xy(*self.get_xy_by_angle_index(which_terr + displacement / 3, new_radius))
+        terr = self.territories[which_terr]
+        displacement = terr.empty_spaces_to_my_right - terr.empty_spaces_to_my_left
+        terr.outer_radius -= 10 * (terr.empty_spaces_to_my_right + terr.empty_spaces_to_my_left)
+        terr.outer_angle_index = which_terr + displacement / 3
+        terr.move_xy(*self.get_xy_by_angle_index(terr.outer_angle_index, terr.outer_radius))
 
     def update_empty_spaces_left(self, which_terr, new_left_val):
         if new_left_val > self.territories[which_terr].empty_spaces_to_my_left: # if it changed from the last time

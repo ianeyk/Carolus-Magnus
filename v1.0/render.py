@@ -6,6 +6,7 @@ from territory import Territory
 from map import Map
 from game_state import GameState
 from groups import Groups
+from territory_hex import King
 
 class Render(pygame.sprite.Sprite):
 
@@ -39,16 +40,30 @@ class Render(pygame.sprite.Sprite):
         self.map = Map(self.width / 2, self.height / 2, [0] * 15)
         # self.terr = Territory(self.width / 2, self.height / 2, 0, 4)
 
+        self.king_loc = 0
+        self.king_width = 35
+        self.king = King((self.map.territories[self.king_loc].x, self.map.territories[self.king_loc].y), self.king_width)
+
+
     def update_game_state(self, game_state: GameState) -> None:
         print("render is updating game state")
         for (player_area, game_player) in zip(self.player_areas, game_state.players):
             player_area.update(game_player)
         self.map.update(game_state.territories)
+
+        self.king_loc = game_state.king
+        self.move_king()
     # def __init__(self, nPlayers, whose_turn, players, court_control_list, territories, king):
+
+    def move_king(self):
+        terr = self.map.territories[self.king_loc]
+        coords = self.map.get_xy_by_angle_index(terr.outer_angle_index, terr.outer_radius - 50)
+        self.king.move_center(coords)
 
     def draw(self, groups: Groups) -> None:
         self.add(groups.background_group)
         self.map.draw(groups)
+        self.king.draw(groups.king)
         # self.terr.draw(group)
         for player_area in self.player_areas:
             player_area.draw(groups)
