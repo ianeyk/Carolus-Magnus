@@ -125,7 +125,12 @@ class Player():
                 cube_actions.append(CubeAction(color_id, court = False, terr_id = terr))
 
         assert(len(cube_actions) == self.nActions)
-        return Action(self.player_render.team, cube_actions, king = self.king_movements)
+
+        actions_to_return = Action(self.player_render.team, cube_actions, king = self.king_movements)
+
+        self.selected_territory = 0 # reset for the start of next turn
+        self.king_movements = 0 # reset for the start of the next king phase
+        return actions_to_return
 
 
     def select(self, event:pygame.event.Event):
@@ -220,7 +225,6 @@ class Player():
             if self.check_king_movement():
                 self.render.king.un_highlight()
                 self.selection_mode = Player.SelectionType.END_TURN
-                self.selected_territory = 0 # reset for the start of next turn
             else:
                 print("Please move the King at least one space")
 
@@ -325,6 +329,7 @@ class Player():
         elif event.key == pygame.K_RETURN: # end turn selection with selected value
             if self.check_actions():
                 self.selection_mode = Player.SelectionType.KING
+                self.selected_territory = self.render.king_loc
                 self.render.king.highlight()
             else:
                 "Please finish all actions before pressing Enter. (#1)"

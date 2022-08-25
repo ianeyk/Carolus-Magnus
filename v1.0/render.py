@@ -52,6 +52,7 @@ class Render(pygame.sprite.Sprite):
         self.map.update(game_state.territories)
 
         self.move_king(game_state.king)
+        pass
     # def __init__(self, nPlayers, whose_turn, players, court_control_list, territories, king):
 
     def move_king(self, new_loc):
