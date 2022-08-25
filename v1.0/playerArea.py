@@ -55,7 +55,7 @@ class PlayerArea(pygame.sprite.Sprite):
         self.add(groups.player_area_group)
         self.draw_court(groups.player_area_group)
         self.cache.draw_cubes(groups.cubes_group)
-        self.token_set.draw(groups.cubes_group)
+        self.token_set.draw(groups.initiative_tokens)
 
     def draw_court(self, group):
         for court_section in self.court_sections:

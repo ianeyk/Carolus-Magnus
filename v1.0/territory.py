@@ -45,8 +45,9 @@ class Territory(pygame.sprite.Sprite):
         self.hex_sprites = [] # list for containing TerritoryHex objects
         self.border_sprites = [] # list for containing TerritoryBorder objects
 
-        self.expand_hexes()
-        self.all_cube_coords = self.get_all_cube_coords()
+        self.all_cube_coords = []
+        self.expand_hexes() # also populates self.all_cube_coords
+        # self.all_cube_coords = self.get_all_cube_coords()
 
         self.empty_spaces_to_my_left = 0
         self.empty_spaces_to_my_right = 0
@@ -61,6 +62,10 @@ class Territory(pygame.sprite.Sprite):
 
     def update(self, new_terr: GameTerritory):
         print("territory is updating game state")
+        self.terr_size = new_terr.size
+        self.expand_hexes() # expand first, before adding cubes
+
+
         self.remove_all_temp_cubes()
         # current_cube_set = Counter(self.cube_list)
         current_cube_set = Counter([c.ordinal_id for c in self.cubes])
@@ -77,9 +82,6 @@ class Territory(pygame.sprite.Sprite):
                 self.cubes.append(Cube(*cube_coords, color_id))
                 print("adding one more cube to this territory")
                 new_cube_set[color_id] -= 1
-
-        self.terr_size = new_terr.size
-        self.expand_hexes() #TODO: uncomment
 
         # reset the temp_cube tracking
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
@@ -224,9 +226,20 @@ class Territory(pygame.sprite.Sprite):
         # for i in range(n_hexes):
             self.add_hex_sprite(self.hex_coord_list[i])
 
+        self.max_num_cubes = self.terr_size * self.hexes_per_unit_size * self.cubes_per_hex
+        self.placement_order = list(range(self.max_num_cubes))
+        print("len of placement_order is", len(self.placement_order))
+        random.shuffle(self.placement_order)
+
+
+
     def add_hex_sprite(self, coords):
         self.border_sprites.append(TerritoryBorder(coords, self.hex_diameter * 1.2))
-        self.hex_sprites.append(TerritoryHex(coords, self.hex_diameter, random.randrange(0, 6)))
+        new_hex = TerritoryHex(coords, self.hex_diameter, random.randrange(0, 6))
+        self.hex_sprites.append(new_hex)
+
+        self.all_cube_coords.extend(new_hex.get_cube_slots())
+        random.shuffle(self.all_cube_coords)
 
     def how_many_rings(self, n_hexes):
         # number of concentric rings of hexes that will be required (center hex counts as ring #0)

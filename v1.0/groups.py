@@ -7,12 +7,17 @@ class Groups():
         self.borders_group = pygame.sprite.Group()
         self.hex_group = pygame.sprite.Group()
         self.player_area_group = pygame.sprite.Group()
+        self.castles = pygame.sprite.Group()
+        self.initiative_tokens = pygame.sprite.Group()
 
         self.display = display
 
     def draw(self):
+        # groups that are drawn first may be covered up by groups drawn later
         self.background_group.draw(self.display)
         self.borders_group.draw(self.display)
         self.hex_group.draw(self.display)
         self.player_area_group.draw(self.display)
+        self.initiative_tokens.draw(self.display)
+        self.castles.draw(self.display)
         self.cubes_group.draw(self.display)
