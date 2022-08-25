@@ -2,6 +2,7 @@ from numpy import place
 import pygame
 from enum import Enum
 from playerArea import PlayerArea
+from render import Render
 from map import Map
 from actions import CubeAction, Action
 # from game_cube_actions import GameCubeAction, GameCubeActions
@@ -25,20 +26,26 @@ class Player():
         SELECTED = 1
         EXHAUSTED = 2
 
-    def __init__(self, player_render: PlayerArea, player_map: Map) -> None:
+    def __init__(self, player_number, render: Render) -> None:
+        self.player_number = player_number
+        self.render = render
+        self.player_render = self.render.player_areas[self.player_number]
+
         self.game_state = 0 #TODO: get game_state
         self.selected_territory = 0
-        self.map = player_map
+        self.map = self.render.map
         self.n_territories = len(self.map.territories)
 
         self.selection_mode = Player.SelectionType.CUBES
         self.selected_cube = 0
 
+        self.king_movements = 0
+        self.king_movements_allowed = 3 # TODO: update based on which token was selected
+
         self.selected_token = 0
         self.nTokens = 5
         self.token_states = [Player.TokenState.AVAILABLE] * self.nTokens
 
-        self.player_render = player_render
         self.cache_list = self.player_render.cache_list
         self.cache_size = len(self.cache_list)
         self.terr_list = [None] * self.cache_size
@@ -106,16 +113,12 @@ class Player():
         updated_rects = None
 
         if event.key == pygame.K_LEFT: # select left
-            self.selected_territory = (self.selected_territory - 1) % self.n_territories
-            while self.map.territories[self.selected_territory].can_draw == False:
-                self.selected_territory = (self.selected_territory - 1) % self.n_territories
+            self.select_next_territory_left()
             # then
             updated_rects = self.map.select_territory(self.selected_territory)
 
         elif event.key == pygame.K_RIGHT: # select right
-            self.selected_territory = (self.selected_territory + 1) % self.n_territories
-            while self.map.territories[self.selected_territory].can_draw == False:
-                self.selected_territory = (self.selected_territory + 1) % self.n_territories
+            self.select_next_territory_right()
             # then
             updated_rects = self.map.select_territory(self.selected_territory)
 
@@ -131,6 +134,45 @@ class Player():
                 self.cubes_placed += 1
 
         return updated_rects
+
+    def start_selecting_king(self):
+        self.selected_territory = self.render.king_loc
+        # self.king_movements = 0
+
+    def select_king(self, event:pygame.event.Event):
+
+        if event.key == pygame.K_LEFT: # select left
+            if self.king_movements > -1 * self.king_movements_allowed:
+                self.select_next_territory_left()
+                self.render.move_king(self.selected_territory)
+                self.king_movements -= 1
+
+        elif event.key == pygame.K_RIGHT: # select right
+            if self.king_movements < self.king_movements_allowed:
+                self.select_next_territory_right()
+                self.render.move_king(self.selected_territory)
+                self.king_movements += 1
+
+        elif event.key == pygame.K_UP: # return to cache
+            return False # send the signal to undo the last turn
+
+        # elif event.key == pygame.K_DOWN: # add to territory
+        #     return True
+
+        elif event.key == pygame.K_RETURN: # end turn selection with selected value
+            return True # send the signal to end your turn
+
+        return None
+
+    def select_next_territory_left(self):
+        self.selected_territory = (self.selected_territory - 1) % self.n_territories
+        while self.map.territories[self.selected_territory].can_draw == False:
+            self.selected_territory = (self.selected_territory - 1) % self.n_territories
+
+    def select_next_territory_right(self):
+        self.selected_territory = (self.selected_territory + 1) % self.n_territories
+        while self.map.territories[self.selected_territory].can_draw == False:
+            self.selected_territory = (self.selected_territory + 1) % self.n_territories
 
     def add_to_territory(self):
         """Adds the currently selected cube to the currently selected territory. Called when the down arrow is pressed

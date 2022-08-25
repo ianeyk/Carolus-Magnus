@@ -51,13 +51,13 @@ class Render(pygame.sprite.Sprite):
             player_area.update(game_player)
         self.map.update(game_state.territories)
 
-        self.king_loc = game_state.king
-        self.move_king()
+        self.move_king(game_state.king)
     # def __init__(self, nPlayers, whose_turn, players, court_control_list, territories, king):
 
-    def move_king(self):
+    def move_king(self, new_loc):
+        self.king_loc = new_loc
         terr = self.map.territories[self.king_loc]
-        coords = self.map.get_xy_by_angle_index(terr.outer_angle_index, terr.outer_radius - 50)
+        coords = self.map.get_xy_by_angle_index(terr.outer_angle_index, terr.outer_radius - 60)
         self.king.move_center(coords)
 
     def draw(self, groups: Groups) -> None:

@@ -92,7 +92,7 @@ class Map(pygame.sprite.Sprite):
     def update_empty_spaces(self, which_terr):
         terr = self.territories[which_terr]
         displacement = terr.empty_spaces_to_my_right - terr.empty_spaces_to_my_left
-        terr.outer_radius -= 10 * (terr.empty_spaces_to_my_right + terr.empty_spaces_to_my_left)
+        terr.outer_radius -= 5 * (terr.empty_spaces_to_my_right + terr.empty_spaces_to_my_left)
         terr.outer_angle_index = which_terr + displacement / 3
         terr.move_xy(*self.get_xy_by_angle_index(terr.outer_angle_index, terr.outer_radius))
 

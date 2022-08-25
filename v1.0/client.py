@@ -20,7 +20,8 @@ class Client():
 
         self.r = Render(width, height, self.game_state)
         self.p1_render = self.r.player_areas[self.player_number]
-        self.p1 = Player(self.p1_render, self.r.map)
+        # self.p1 = Player(self.p1_render, self.r.map)
+        self.p1 = Player(0, self.r)
 
         self.display = self.setup_display(self.width, self.height)
         self.clock = pygame.time.Clock()
