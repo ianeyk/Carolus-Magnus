@@ -35,6 +35,7 @@ class Player():
 
         self.game_state = 0 #TODO: get game_state
         self.selected_territory = 0
+        self.prev_selected_territory = 0 # from when we were just selecting cubes, not the king
         self.map = self.render.map
         self.n_territories = len(self.map.territories)
 
@@ -76,6 +77,12 @@ class Player():
 
         self.cubes_placed = 0
 
+    def check_king_movement(self):
+        assert(self.king_movements <= self.king_movements_allowed) # this should never happen
+        if self.king_movements < 1:
+            return False
+        # else:
+        return True
 
     def check_actions(self):
         assert(self.cubes_placed <= self.nActions) # if this is not the case, then we messed up the turn control elsewhere
@@ -118,7 +125,7 @@ class Player():
                 cube_actions.append(CubeAction(color_id, court = False, terr_id = terr))
 
         assert(len(cube_actions) == self.nActions)
-        return Action(self.player_render.team, cube_actions, king = 1)
+        return Action(self.player_render.team, cube_actions, king = self.king_movements)
 
 
     def select(self, event:pygame.event.Event):
@@ -178,13 +185,14 @@ class Player():
             if self.check_actions():
                 self.selection_mode = Player.SelectionType.KING
                 self.render.king.highlight()
+                self.selected_territory = self.render.king_loc
             else:
                 "Please finish all actions before pressing Enter. (#2)"
 
         # return updated_rects
         return None
 
-    def start_selecting_king(self):
+    def start_selecting_king(self): # unused
         self.selected_territory = self.render.king_loc
         self.render.king.highlight()
         # self.king_movements = 0
@@ -206,10 +214,16 @@ class Player():
         elif event.key == pygame.K_UP: # return to cache
             self.render.king.un_highlight()
             self.selection_mode = Player.SelectionType.CUBES
+            self.selected_territory = self.prev_selected_territory
 
         elif event.key == pygame.K_RETURN: # end turn selection with selected value
-            self.render.king.un_highlight()
-            self.selection_mode = Player.SelectionType.END_TURN
+            if self.check_king_movement():
+                self.render.king.un_highlight()
+                self.selection_mode = Player.SelectionType.END_TURN
+                self.selected_territory = 0 # reset for the start of next turn
+            else:
+                print("Please move the King at least one space")
+
 
         return None
 
