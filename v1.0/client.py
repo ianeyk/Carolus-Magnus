@@ -66,6 +66,7 @@ class Client():
         run = True
         self.flip_display()
         while run:
+            # wait for keydown events
             self.clock.tick(30)
             event = pygame.event.poll()
             # print(event)
@@ -81,26 +82,24 @@ class Client():
             if event.type != pygame.KEYDOWN or event.key not in self.action_keys:
                 continue
 
-            print("event: ", event, "with KEY", event.key)
-            # print(event.key)
+            # a keydown even has occurred!
 
-            if event.key == pygame.K_RETURN:
-                game_cube_actions = self.p1.return_actions()
-                if game_cube_actions is not None:
-                    self.game_state = self.network.send(game_cube_actions)
-                    print("Updating game state to", self.game_state)
-                    self.r.update_game_state(self.game_state)
-                    self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
-                    self.flip_display()
-                    continue
-                else:
-                    print("Please take all required cube actions before pressing enter")
+            game_cube_actions = self.p1.select(event)
+            if game_cube_actions is not None:
+                self.game_state = self.network.send(game_cube_actions) # transmits the client-side Actions and receives an updated game_state from the server
+                print("Updating game state to", self.game_state)
+                self.r.update_game_state(self.game_state)
+                self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
+                continue
+            self.flip_display()
+            # else:
+            #     print("Please take all required cube actions before pressing enter")
 
-            updated_rects = self.p1.select(event)
+            # updated_rects = self.p1.select(event)
             # p1.player_render.cache.draw_cubes(group)
-            self.groups.draw()
+            # self.groups.draw()
             # pygame.display.update(updated_rects)
-            pygame.display.flip()
+            # pygame.display.flip()
 
 def main():
     width = 1280

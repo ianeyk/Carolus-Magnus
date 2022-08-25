@@ -241,7 +241,7 @@ class Territory(): # pygame.sprite.Sprite):
 
     def add_hex_sprite(self, coords):
         self.border_sprites.append(TerritoryBorder(coords, self.hex_diameter * 1.2))
-        new_hex = TerritoryHex(coords, self.hex_diameter, random.randrange(0, 6))
+        new_hex = TerritoryHex(coords, self.hex_diameter, random.randrange(0, 6), background_rotation = 0) # TODO: can't set background_rotation to nonzero, because the hexes aren't perfectly hexagonal
         self.hex_sprites.append(new_hex)
 
         self.all_cube_coords.extend(new_hex.get_cube_slots())

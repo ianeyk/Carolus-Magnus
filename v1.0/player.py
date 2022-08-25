@@ -20,6 +20,8 @@ class Player():
         CUBES = 0
         TERRITORIES = 1
         TOKENS = 2
+        KING = 3
+        END_TURN = 4
 
     class TokenState(Enum):
         AVAILABLE = 0
@@ -55,6 +57,7 @@ class Player():
         self.nActions = 3
         self.cubes_placed = 0
 
+
     def reset_player_area(self, player_render, map):
         self.player_render = player_render
         self.map = map
@@ -74,18 +77,32 @@ class Player():
         self.cubes_placed = 0
 
 
+    def check_actions(self):
+        assert(self.cubes_placed <= self.nActions) # if this is not the case, then we messed up the turn control elsewhere
+        # or someone is trying to cheat
+
+        if self.cubes_placed < self.nActions: # if not enough actions have been taken yet, do not complete the turn
+            return False
+
+        for color_id, placement, terr in zip(self.cache_list, self.cube_placements, self.terr_list):
+            # only two places where cubes should be permanently deposited
+            assert(placement in [Player.CubeRegion.COURT, Player.CubeRegion.TERRITORY])
+
+        # if all checks passed:
+        return True
+
     def return_actions(self): # called when enter is pressed
         """Unpack all cube placement actions that have been taken over the course of the turn and add them to a
         GameCubeActions object for export to the server.
-        self.return_actions() is called whenever ENTER is pressed on the client's turn.
+
+        self.return_actions() is called whenever ENTER is pressed during cube selection.
         It only makes sense to return the actions when self.cubes_placed == self.nActions; i.e. all three cube actions
         have been taken. self.return_actions() contains rigorous checking to make sure this is the case.
-        If not, either raises an AssertionError or simply returns None."""
-        assert(self.cubes_placed <= self.nActions) # if this is not the case, then we messed up the turn control elsewhere
+        If not, either raises an AssertionError or simply returns None.
+        """
+        assert(self.check_actions()) # at this point, it should be correct.
+        # We have already thrown it back to the Player to redo if it's not correct, and this is the final inspection
 
-        if self.cubes_placed < self.nActions: # if not enough actions have been taken yet, do not complete the turn
-            return None
-        # else:
         cube_actions = []
         for color_id, placement, terr in zip(self.cache_list, self.cube_placements, self.terr_list):
             if placement == Player.CubeRegion.COURT:
@@ -93,21 +110,39 @@ class Player():
                 cube_actions.append(CubeAction(color_id, court = True, terr_id = None))
             elif placement == Player.CubeRegion.TERRITORY:
                 cube_actions.append(CubeAction(color_id, court = False, terr_id = terr))
+
         assert(len(cube_actions) == self.nActions)
         return Action(self.player_render.team, cube_actions, king = 1)
 
 
     def select(self, event:pygame.event.Event):
+        """Contains all the necessary commands to complete a single action on this player's main turn,
+        including cube / territory selection, followed by king selection
+        (distinguished from the initial, initiative-selection turn, which happens in a different order).
+
+        Because all the events originate in the Client loop, this funtion is intended to be run inside
+        a while loop in client.py. Each time a relevant event occurs in that while loop, this function is called.
+
+        This function returns None as long as the turn is not over.
+        When the turn is complete, it returns an Action object.
+        """
+        # discard unused actions
         action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             return None
 
         if self.selection_mode == Player.SelectionType.TOKENS:
-            return self.select_token(event)
+            self.select_token(event)
         elif self.selection_mode == Player.SelectionType.CUBES:
-            return self.select_cube(event)
-        else:
-            return self.select_territory(event)
+            self.select_cube(event)
+        elif self.selection_mode == Player.SelectionType.TERRITORIES:
+            self.select_territory(event)
+        elif self.selection_mode == Player.SelectionType.KING:
+            self.select_king(event)
+        elif self.selection_mode == Player.SelectionType.END_TURN:
+            return self.return_actions()
+        # else:
+        return None
 
     def select_territory(self, event:pygame.event.Event): # -> tuple[pygame.sprite.Group, list[any]]:
         updated_rects = None
@@ -133,7 +168,14 @@ class Player():
                 updated_rects = self.add_to_territory()
                 self.cubes_placed += 1
 
-        return updated_rects
+        elif event.key == pygame.K_RETURN: # end turn selection with selected value
+            if self.check_actions():
+                self.selection_mode = Player.SelectionType.KING
+            else:
+                "Please finish all actions before pressing Enter. (#2)"
+
+        # return updated_rects
+        return None
 
     def start_selecting_king(self):
         self.selected_territory = self.render.king_loc
@@ -154,13 +196,10 @@ class Player():
                 self.king_movements += 1
 
         elif event.key == pygame.K_UP: # return to cache
-            return False # send the signal to undo the last turn
-
-        # elif event.key == pygame.K_DOWN: # add to territory
-        #     return True
+            self.selection_mode = Player.SelectionType.CUBES
 
         elif event.key == pygame.K_RETURN: # end turn selection with selected value
-            return True # send the signal to end your turn
+            self.selection_mode = Player.SelectionType.END_TURN
 
         return None
 
@@ -258,6 +297,12 @@ class Player():
                 self.cube_placements[self.selected_cube] = Player.CubeRegion.COURT
                 updated_rects = self.player_render.add_to_court(self.selected_cube)
                 self.cubes_placed += 1
+
+        elif event.key == pygame.K_RETURN: # end turn selection with selected value
+            if self.check_actions():
+                self.selection_mode = Player.SelectionType.KING
+            else:
+                "Please finish all actions before pressing Enter. (#1)"
 
         return updated_rects
 
