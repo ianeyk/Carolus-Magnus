@@ -53,8 +53,8 @@ class Client():
         return display
 
     def flip_display(self):
-        if self.game_state.whose_turn == self.player_number:
-            updated_rects = self.p1_render.select_cube(0)
+        # if self.game_state.whose_turn == self.player_number:
+        #     updated_rects = self.p1_render.select_cube(0)
         self.r.draw(self.groups) # draw the initial board
         self.groups.draw()
         pygame.display.flip()
@@ -90,7 +90,7 @@ class Client():
                 print("Updating game state to", self.game_state)
                 self.r.update_game_state(self.game_state)
                 self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
-                continue
+                # continue
             self.flip_display()
             # else:
             #     print("Please take all required cube actions before pressing enter")

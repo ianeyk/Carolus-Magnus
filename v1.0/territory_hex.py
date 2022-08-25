@@ -101,9 +101,18 @@ class King(HexSprite):
 
     pngs = {
         0: "./sprites/castles/king1.png",
+        1: "./sprites/castles/king_highlighted.png",
     }
 
     def set_image(self):
         png_image = pygame.image.load(self.pngs[self.background_style])
         self.image = pygame.transform.smoothscale(png_image, (self.diameter, self.diameter * 3))
         self.rect = self.image.get_rect(center = self.coords)
+
+    def highlight(self):
+        self.background_style = 1
+        self.set_image()
+
+    def un_highlight(self):
+        self.background_style = 0
+        self.set_image()

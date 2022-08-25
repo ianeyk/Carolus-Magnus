@@ -80,13 +80,19 @@ class Player():
     def check_actions(self):
         assert(self.cubes_placed <= self.nActions) # if this is not the case, then we messed up the turn control elsewhere
         # or someone is trying to cheat
-
         if self.cubes_placed < self.nActions: # if not enough actions have been taken yet, do not complete the turn
             return False
 
+        correct_action_count = 0
         for color_id, placement, terr in zip(self.cache_list, self.cube_placements, self.terr_list):
             # only two places where cubes should be permanently deposited
-            assert(placement in [Player.CubeRegion.COURT, Player.CubeRegion.TERRITORY])
+            if placement in [Player.CubeRegion.COURT, Player.CubeRegion.TERRITORY]:
+                correct_action_count += 1
+
+        assert(correct_action_count <= self.nActions) # if this is not the case, then we messed up the turn control elsewhere
+        # or someone is trying to cheat
+        if correct_action_count < self.nActions: # if not enough actions have been taken yet, do not complete the turn
+            return False
 
         # if all checks passed:
         return True
@@ -127,7 +133,7 @@ class Player():
         When the turn is complete, it returns an Action object.
         """
         # discard unused actions
-        action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
+        action_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_RETURN]
         if event.type != pygame.KEYDOWN or event.key not in action_keys:
             return None
 
@@ -171,6 +177,7 @@ class Player():
         elif event.key == pygame.K_RETURN: # end turn selection with selected value
             if self.check_actions():
                 self.selection_mode = Player.SelectionType.KING
+                self.render.king.highlight()
             else:
                 "Please finish all actions before pressing Enter. (#2)"
 
@@ -179,12 +186,13 @@ class Player():
 
     def start_selecting_king(self):
         self.selected_territory = self.render.king_loc
+        self.render.king.highlight()
         # self.king_movements = 0
 
     def select_king(self, event:pygame.event.Event):
 
         if event.key == pygame.K_LEFT: # select left
-            if self.king_movements > -1 * self.king_movements_allowed:
+            if self.king_movements > 0:
                 self.select_next_territory_left()
                 self.render.move_king(self.selected_territory)
                 self.king_movements -= 1
@@ -196,9 +204,11 @@ class Player():
                 self.king_movements += 1
 
         elif event.key == pygame.K_UP: # return to cache
+            self.render.king.un_highlight()
             self.selection_mode = Player.SelectionType.CUBES
 
         elif event.key == pygame.K_RETURN: # end turn selection with selected value
+            self.render.king.un_highlight()
             self.selection_mode = Player.SelectionType.END_TURN
 
         return None
@@ -301,6 +311,7 @@ class Player():
         elif event.key == pygame.K_RETURN: # end turn selection with selected value
             if self.check_actions():
                 self.selection_mode = Player.SelectionType.KING
+                self.render.king.highlight()
             else:
                 "Please finish all actions before pressing Enter. (#1)"
 
