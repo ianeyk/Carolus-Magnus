@@ -107,10 +107,16 @@ class Player():
 
         if event.key == pygame.K_LEFT: # select left
             self.selected_territory = (self.selected_territory - 1) % self.n_territories
+            while self.map.territories[self.selected_territory].can_draw == False:
+                self.selected_territory = (self.selected_territory - 1) % self.n_territories
+            # then
             updated_rects = self.map.select_territory(self.selected_territory)
 
         elif event.key == pygame.K_RIGHT: # select right
             self.selected_territory = (self.selected_territory + 1) % self.n_territories
+            while self.map.territories[self.selected_territory].can_draw == False:
+                self.selected_territory = (self.selected_territory + 1) % self.n_territories
+            # then
             updated_rects = self.map.select_territory(self.selected_territory)
 
         elif event.key == pygame.K_UP: # return to cache
