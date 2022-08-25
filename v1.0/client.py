@@ -1,3 +1,4 @@
+from re import L
 import time
 import pygame
 from network import Network
@@ -17,6 +18,7 @@ class Client():
 
         # game_state = setup_network()
         self.player_number = self.network.get_player_num()
+        self.I_know_its_my_turn = False
 
         self.r = Render(width, height, self.game_state)
         self.p1_render = self.r.player_areas[self.player_number]
@@ -32,8 +34,8 @@ class Client():
 
         self.r.update_game_state(self.game_state)
         self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
-        self.reset_turn()
-        self.flip_display()
+        # self.reset_turn()
+        # self.flip_display()
         pass # breakpoint
 
 
@@ -68,6 +70,7 @@ class Client():
             self.r.set_image(1)
         else:
             self.r.set_image(0)
+        self.flip_display()
 
     def main(self):
         run = True
@@ -83,8 +86,15 @@ class Client():
                 self.on_quit()
                 pygame.quit()
 
-            # if self.game_state.whose_turn != self.player_number:
-            #     continue
+            if self.game_state.whose_turn != self.player_number:
+                if self.I_know_its_my_turn:
+                    self.I_know_its_my_turn = False
+                continue
+
+            # it's my turn!
+            if not self.I_know_its_my_turn:
+                self.reset_turn()
+                self.I_know_its_my_turn = True
 
             if event.type != pygame.KEYDOWN or event.key not in self.action_keys:
                 continue
@@ -98,6 +108,7 @@ class Client():
                 self.r.update_game_state(self.game_state)
                 self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
                 self.reset_turn()
+                continue # self.reset_turn() already includes a call to self.flip_display()
 
             self.flip_display()
             # else:
