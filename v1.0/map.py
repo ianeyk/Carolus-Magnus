@@ -34,33 +34,71 @@ class Map(pygame.sprite.Sprite):
             angle = 2 * math.pi / len(self.game_territories) * pos - math.pi / 2
             terr_x = self.x + (radius * math.cos(angle)) * Map.ellipse_w_factor
             terr_y = self.y + (radius * math.sin(angle)) * Map.ellipse_h_factor
-            territories.append(Territory(terr_x, terr_y, angle))
+            territories.append(Territory(*self.get_xy_by_angle_index(pos), self.get_angle_by_index(pos)))
         return territories
+
+    def get_angle_by_index(self, pos): # pos can either be an int or float
+        angle = 2 * math.pi / len(self.game_territories) * pos - math.pi / 2
+        return angle
+
+    def get_xy_by_angle_index(self, pos):
+        angle = self.get_angle_by_index(pos)
+        terr_x = self.x + (self.outer_radius * math.cos(angle)) * Map.ellipse_w_factor
+        terr_y = self.y + (self.outer_radius * math.sin(angle)) * Map.ellipse_h_factor
+        return (terr_x, terr_y)
 
     def update(self, new_territories): # : Optional[GameState] #TODO: look up correct typing for an object that can be either GameState or None
         print("map is updating game state")
 
         # initialize counters
         empty_terr_count = 0
-        last_non_empty_terr = None
+        last_non_empty_idx = None
 
-        for new_terr, terr in zip(new_territories, self.territories):
+        for idx, new_terr in enumerate(new_territories):
+            terr = self.territories[idx]
             if new_terr is None: # if a territory got merged
                 terr.clear()
                 empty_terr_count += 1
             else:
-                if empty_terr_count > 0:
-                    terr.empty_spaces_to_my_left = empty_terr_count
-                if last_non_empty_terr is not None:
-                    last_non_empty_terr.empty_spaces_to_my_right = empty_terr_count
-
                 terr.update(new_terr)
-                last_non_empty_terr = terr
 
-        if empty_terr_count > 0: #TODO: also check for first territory
-            terr.empty_spaces_to_my_left = empty_terr_count
+                if empty_terr_count > 0:
+                    self.update_empty_spaces_left(idx, empty_terr_count)
+                    if last_non_empty_idx is not None:
+                        self.update_empty_spaces_right(last_non_empty_idx, empty_terr_count)
+
+                empty_terr_count = 0
+                last_non_empty_idx = idx
+
+        # repeat the above code chunk until we find the first non-empty territory again
+        for idx, (new_terr, terr) in enumerate(zip(new_territories, self.territories)):
+            if new_terr is None: # if a territory got merged
+                # terr.clear() # territory is already cleared
+                empty_terr_count += 1
+            else:
+                terr.update(new_terr)
+
+                if empty_terr_count > 0:
+                    self.update_empty_spaces_left(idx, empty_terr_count)
+                    if last_non_empty_idx is not None:
+                        self.update_empty_spaces_right(last_non_empty_idx, empty_terr_count)
+
+                break # break after finding the first non-empty territory for the second time
+
+    def update_empty_spaces(self, which_terr):
+        displacement = self.territories[which_terr].empty_spaces_to_my_right - self.territories[which_terr].empty_spaces_to_my_left
+        self.territories[which_terr].move_xy(*self.get_xy_by_angle_index(which_terr + displacement / 2))
 
 
+    def update_empty_spaces_left(self, which_terr, new_left_val):
+        if new_left_val > self.territories[which_terr].empty_spaces_to_my_left: # if it changed from the last time
+            self.territories[which_terr].empty_spaces_to_my_left = new_left_val
+            self.update_empty_spaces(which_terr)
+
+    def update_empty_spaces_right(self, which_terr, new_right_val):
+        if new_right_val > self.territories[which_terr].empty_spaces_to_my_right: # if it changed from the last time
+            self.territories[which_terr].empty_spaces_to_my_right = new_right_val
+            self.update_empty_spaces(which_terr)
 
     def draw(self, group):
         for territory in self.territories:

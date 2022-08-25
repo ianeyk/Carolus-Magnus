@@ -19,7 +19,7 @@ class Territory(pygame.sprite.Sprite):
     # cube_dist = side_length * 2 / 3
     # size = (3 * side_length * math.sqrt(3), side_length * 3.5)
 
-    def __init__(self, x, y, angle, terr_type = 0, terr_size = 1):
+    def __init__(self, x, y, angle = 0, terr_type = 0, terr_size = 1):
         pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
 
         self.x = x
@@ -37,11 +37,11 @@ class Territory(pygame.sprite.Sprite):
 
 
         self.hex_diameter = 38 # two times the side length
-        self.hex_overlap_factor = 1.1 # coord radius gets divided by this number
+        self.hex_overlap_factor = 1.1
         self.coords_of_hexes = [] # auto-generation of hex patterns
         self.hex_coord_list = self.get_all_hex_coords()
-        self.hex_sprites = []
-        self.border_sprites = []
+        self.hex_sprites = [] # list for containing TerritoryHex objects
+        self.border_sprites = [] # list for containing TerritoryBorder objects
 
         self.expand_hexes()
         self.all_cube_coords = self.get_all_cube_coords()
@@ -56,7 +56,6 @@ class Territory(pygame.sprite.Sprite):
         self.cubes = []
         for loc, color_id in enumerate(self.cube_list):
             self.cubes.append(Cube(*self.coords_of_cube(loc), color_id))
-
 
     def update(self, new_terr: GameTerritory):
         print("territory is updating game state")
@@ -180,10 +179,16 @@ class Territory(pygame.sprite.Sprite):
     def move_xy(self, x, y):
         self.x = x
         self.y = y
-        for hex in self.hex_sprites:
-            hex.move_center(x, y)
-        for border in self.border_sprites:
-            border.move_center(x, y)
+
+        self.hex_coord_list = self.get_all_hex_coords()
+
+        n_hexes = self.terr_size * self.hexes_per_unit_size
+        self.coords_of_hexes = self.hex_coord_list[:n_hexes]
+
+        for coords, hex in zip(self.coords_of_hexes, self.hex_sprites):
+            hex.move_center(coords)
+        for coords, border in zip(self.coords_of_hexes, self.border_sprites):
+            border.move_center(coords)
 
         self.all_cube_coords = self.get_all_cube_coords()
 
