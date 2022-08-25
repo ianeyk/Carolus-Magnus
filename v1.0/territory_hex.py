@@ -78,3 +78,32 @@ class TerritoryBorder(HexSprite):
     def un_highlight(self):
         self.background_style = 0
         self.set_image()
+
+class Castle(HexSprite):
+
+    pngs = {
+        0: "./sprites/castles/whiteCastle1.png",
+        1: "./sprites/castles/blackCastle1.png",
+        2: "./sprites/castles/greyCastle1.png",
+    }
+
+    def set_image(self):
+        png_image = pygame.image.load(self.pngs[self.background_style])
+        self.image = pygame.transform.smoothscale(png_image, (self.diameter, self.diameter))
+        self.rect = self.image.get_rect(center = self.coords)
+
+    def set_color(self, team_color):
+        self.background_style = team_color
+        self.set_image()
+
+
+class King(HexSprite):
+
+    pngs = {
+        0: "./sprites/castles/king1.png",
+    }
+
+    def set_image(self):
+        png_image = pygame.image.load(self.pngs[self.background_style])
+        self.image = pygame.transform.smoothscale(png_image, (self.diameter, self.diameter * 3))
+        self.rect = self.image.get_rect(center = self.coords)

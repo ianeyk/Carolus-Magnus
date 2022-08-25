@@ -5,10 +5,10 @@ import random
 from collections import Counter
 from cube import Cube
 from game_territory import GameTerritory
-from territory_hex import TerritoryBorder, TerritoryHex
+from territory_hex import TerritoryBorder, TerritoryHex, Castle
 from groups import Groups
 
-class Territory(pygame.sprite.Sprite):
+class Territory(): # pygame.sprite.Sprite):
     pngs = {
         0: "./sprites/hexes/ruleBookTileA.png", # TODO: build tiles out of individual hexes using function
     }
@@ -21,18 +21,17 @@ class Territory(pygame.sprite.Sprite):
     # cube_dist = side_length * 2 / 3
     # size = (3 * side_length * math.sqrt(3), side_length * 3.5)
 
-    def __init__(self, x, y, angle = 0, terr_type = 0, terr_size = 1):
-        pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
+    def __init__(self, x, y, angle = 0):
+        # pygame.sprite.Sprite.__init__(self) # Call the parent class (Sprite) constructor
 
         self.x = x
         self.y = y
         self.angle = -angle + math.pi
-        self.terr_type = terr_type
         self.cube_list = []
-        self.terr_size = terr_size # number of territories that have been merged together; multiply by 4 to get the number of hexes
+        self.terr_size = 1 # number of territories that have been merged together; multiply by 4 to get the number of hexes
         self.hexes_per_unit_size = 4
         self.cubes_per_hex = 3
-        self.max_num_cubes = terr_size * self.hexes_per_unit_size * self.cubes_per_hex
+        self.max_num_cubes = self.terr_size * self.hexes_per_unit_size * self.cubes_per_hex
         self.placement_order = list(range(self.max_num_cubes))
         random.shuffle(self.placement_order)
         self.temp_cube_list = [None] * 7 #TODO: change based on the number of players
@@ -45,6 +44,9 @@ class Territory(pygame.sprite.Sprite):
         self.hex_sprites = [] # list for containing TerritoryHex objects
         self.border_sprites = [] # list for containing TerritoryBorder objects
 
+        self.n_castles = 0
+        self.castle_color = 0
+        self.all_castle_coords = []
         self.all_cube_coords = []
         self.expand_hexes() # also populates self.all_cube_coords
         # self.all_cube_coords = self.get_all_cube_coords()
@@ -52,9 +54,13 @@ class Territory(pygame.sprite.Sprite):
         self.empty_spaces_to_my_left = 0
         self.empty_spaces_to_my_right = 0
 
-        # png_image = pygame.image.load(Territory.pngs[self.terr_type])
-        # self.set_image(png_image)
         self.can_draw = True # set to False if the territory disappears because of merging
+
+        self.castle_diameter = 20
+        self.castles = []
+        for loc in range(self.n_castles): # should actually not run on the first init because of range(0)
+            coords = self.all_castle_coords[loc]
+            self.castles.append(Castle(coords, self.castle_diameter))
 
         self.cubes = []
         for loc, color_id in enumerate(self.cube_list):
@@ -66,12 +72,26 @@ class Territory(pygame.sprite.Sprite):
         self.expand_hexes() # expand first, before adding cubes
 
 
+        if new_terr.castles > self.n_castles:
+            for i in range(self.n_castles, new_terr.castles):
+                self.castles.append(Castle(self.all_castle_coords[i], self.castle_diameter, self.castle_color))
+        self.n_castles = new_terr.castles
+
+        if new_terr.owner != self.castle_color:
+            for castle in self.castles:
+                castle.set_color(new_terr.owner)
+        self.castle_color = new_terr.owner
+        if self.castle_color is None:
+            self.castle_color = 0
+
+        self.update_cubes(new_terr.cubes.get_cubes())
+
+    def update_cubes(self, new_cube_set):
         self.remove_all_temp_cubes()
         # current_cube_set = Counter(self.cube_list)
         current_cube_set = Counter([c.ordinal_id for c in self.cubes])
         print("cube set object", current_cube_set)
         print("self.cubes is", self.cubes)
-        new_cube_set = new_terr.cubes.get_cubes()
         for color_id in range(5):
             print("color is:", color_id)
             # print("current_cube_set is:", current_cube_set.get(color_id, 0))
@@ -94,15 +114,9 @@ class Territory(pygame.sprite.Sprite):
             hex.clear()
         for border in self.border_sprites:
             border.clear()
+        for castle in self.castles:
+            castle.clear()
         self.can_draw = False
-
-    def clear_hexes(self):
-        for hex in self.hex_sprites:
-            hex.clear()
-        self.hex_sprites = []
-        for border in self.border_sprites:
-            border.clear()
-        self.border_sprites = []
 
     def coords_of_cube(self, loc): # takes care of shuffled placement order
         return self.all_cube_coords[self.placement_order[loc]]
@@ -113,29 +127,16 @@ class Territory(pygame.sprite.Sprite):
             coords.extend(hex.get_cube_slots())
         return coords
 
-    def draw(self, groups):
+    def draw(self, groups: Groups):
         if self.can_draw:
-            # self.add(group)
-            self.draw_hexes(groups)
-            self.draw_cubes(groups)
-
-    def draw_cubes(self, groups: Groups):
-        for cube in self.cubes:
-            cube.add(groups.cubes_group)
-
-    def draw_hexes(self, groups: Groups):
-        for border in self.border_sprites: # draw the borders first
-            border.add(groups.borders_group)
-        for hex in self.hex_sprites:
-            hex.add(groups.hex_group)
-
-    # def set_image(self, image, size = None):
-    #     if not size:
-    #         size = Territory.size
-    #     self.image = pygame.transform.smoothscale(image, size)
-    #     self.image = pygame.transform.rotate(self.image, math.degrees(self.angle))
-
-    #     self.rect = self.image.get_rect(center = (self.x, self.y))
+            for border in self.border_sprites: # draw the borders first
+                border.add(groups.borders_group)
+            for hex in self.hex_sprites:
+                hex.add(groups.hex_group)
+            for cube in self.cubes:
+                cube.add(groups.cubes_group)
+            for castle in self.castles:
+                castle.add(groups.castles)
 
     def highlight(self):
         for border in self.border_sprites:
@@ -199,11 +200,14 @@ class Territory(pygame.sprite.Sprite):
 
         n_hexes = self.terr_size * self.hexes_per_unit_size
         self.coords_of_hexes = self.hex_coord_list[:n_hexes]
+        self.all_castle_coords = self.get_all_castle_coords()
 
         for coords, hex in zip(self.coords_of_hexes, self.hex_sprites):
             hex.move_center(coords)
         for coords, border in zip(self.coords_of_hexes, self.border_sprites):
             border.move_center(coords)
+        for coords, castle in zip(self.all_castle_coords, self.castles):
+            castle.move_center(coords)
 
         self.all_cube_coords = self.get_all_cube_coords()
 
@@ -219,8 +223,6 @@ class Territory(pygame.sprite.Sprite):
         if n_hexes <= prev_n_hexes:
             return
 
-        # self.clear_hexes()
-
         self.coords_of_hexes = self.hex_coord_list[:n_hexes]
         for i in range(prev_n_hexes, n_hexes):
         # for i in range(n_hexes):
@@ -231,7 +233,10 @@ class Territory(pygame.sprite.Sprite):
         print("len of placement_order is", len(self.placement_order))
         random.shuffle(self.placement_order)
 
+        self.all_castle_coords = self.get_all_castle_coords()
 
+    def get_all_castle_coords(self):
+        return self.coords_of_hexes[::4]
 
     def add_hex_sprite(self, coords):
         self.border_sprites.append(TerritoryBorder(coords, self.hex_diameter * 1.2))
