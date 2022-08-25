@@ -34,4 +34,20 @@ class CubeSet():
 
 
     def __repr__(self):
-        return f"CubeSet <{self.cubes[0]} green, {self.cubes[1]} red, {self.cubes[2]} blue, {self.cubes[3]} yellow, {self.cubes[4]} pink>"
+        string = "CubeSet <"
+        initial_len = len(string)
+        if self.cubes[0] > 0:
+            string += str(self.cubes[0]) + " green, "
+        if self.cubes[1] > 0:
+            string += str(self.cubes[1]) + " red, "
+        if self.cubes[2] > 0:
+            string += str(self.cubes[2]) + " blue, "
+        if self.cubes[3] > 0:
+            string += str(self.cubes[3]) + " yellow, "
+        if self.cubes[4] > 0:
+            string += str(self.cubes[4]) + " pink, "
+
+        if len(string) != initial_len: # at least one cube color was reported
+            string = string[:-2] # chop off the last two characters (the ", ")
+        string += ">"
+        return string
