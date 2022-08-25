@@ -43,10 +43,12 @@ class Map(pygame.sprite.Sprite):
         angle = 2 * math.pi / len(self.game_territories) * pos - math.pi / 2
         return angle
 
-    def get_xy_by_angle_index(self, pos):
+    def get_xy_by_angle_index(self, pos, radius = None):
+        if radius is None:
+            radius = self.outer_radius
         angle = self.get_angle_by_index(pos)
-        terr_x = self.x + (self.outer_radius * math.cos(angle)) * Map.ellipse_w_factor
-        terr_y = self.y + (self.outer_radius * math.sin(angle)) * Map.ellipse_h_factor
+        terr_x = self.x + (radius * math.cos(angle)) * Map.ellipse_w_factor
+        terr_y = self.y + (radius * math.sin(angle)) * Map.ellipse_h_factor
         return (terr_x, terr_y)
 
     def update(self, new_territories): # : Optional[GameState] #TODO: look up correct typing for an object that can be either GameState or None
@@ -89,7 +91,8 @@ class Map(pygame.sprite.Sprite):
 
     def update_empty_spaces(self, which_terr):
         displacement = self.territories[which_terr].empty_spaces_to_my_right - self.territories[which_terr].empty_spaces_to_my_left
-        self.territories[which_terr].move_xy(*self.get_xy_by_angle_index(which_terr + displacement / 3))
+        new_radius = self.outer_radius - 10 * (self.territories[which_terr].empty_spaces_to_my_right + self.territories[which_terr].empty_spaces_to_my_left)
+        self.territories[which_terr].move_xy(*self.get_xy_by_angle_index(which_terr + displacement / 3, new_radius))
 
     def update_empty_spaces_left(self, which_terr, new_left_val):
         if new_left_val > self.territories[which_terr].empty_spaces_to_my_left: # if it changed from the last time
