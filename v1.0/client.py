@@ -90,11 +90,11 @@ class Client():
                 pygame.quit()
 
 
+            # Trying something new: this thread is now the only way of getting a new game_state
             if self.game_state.whose_turn != self.player_number:
                 if not self.waiting_thread_running:
                     start_new_thread(self.waiting_pattern, ()) # this should update game_state when ready
                     self.waiting_thread_running = True
-
                 continue
 
             # it's my turn!

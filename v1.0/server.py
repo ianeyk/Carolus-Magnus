@@ -11,7 +11,7 @@ class Server():
         self.nPlayers = 4
         self.next_player_num = 0
 
-        self.updates_available_by_player = [False] * self.nPlayers
+        self.updates_available_by_player = [True] * self.nPlayers
 
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -47,41 +47,30 @@ class Server():
                 action = pickle.loads(self.conn.recv(2048 * 8))
                 print("player", player_num, "has sent action.")
 
-                if action == "Waiting for game state":
-                    print("waiting for udates to be available for", player_num)
-                    while not self.updates_available_by_player[player_num]:
-                        # wait for updates to be available
-                        pass
-                    print("~~~~~~~~~~~~~~  Updates are available, so sending a new game_state to Player", player_num, " ~~~~~~~~~~~~")
-                    game_state = self.game.get_game_state()
-                    print("^^^ sending that game_state's next player order is", game_state.whose_turn)
-                    try:
-                        self.conn.send(pickle.dumps(game_state))
-                    except Exception as e:
-                        print("error in connection was: (#2)")
-                        print(e)
-                        # break
-                    self.updates_available_by_player[player_num] = False
-
-                    continue
-
                 if not action:
                     print("Disconnected")
                     break
-                else:
-                    self.game.handle_action(action)
-                    game_state = self.game.get_game_state()
-                    print("Received: ", action)
-                    print("Sending : ", game_state)
+
+                print("waiting for udates to be available for", player_num)
+                while not self.updates_available_by_player[player_num]:
+                    # wait for updates to be available
+                    pass # delay
+
+                print("~~~~~~~~~~~~~~  Updates are available, so sending a new game_state to Player", player_num, " ~~~~~~~~~~~~")
+                game_state = self.game.get_game_state()
+                print("^^^ sending that game_state's next player order is", game_state.whose_turn)
 
                 self.conn.send(pickle.dumps(game_state))
 
-                print(f"=-=-=-=-=-=-==-=-  setting game state update to be available! (End of Player {player_num}'s turn) -=-=-=-=-=--=-=-=-=-=-=-=")
-
-                self.set_game_state_update_available(all_but = player_num) # send the cue to the other threads to send the updated game_state
+                if action == "Waiting for game state":
+                    self.updates_available_by_player[player_num] = False
+                else:
+                    print(f"=-=-=-=-=-=-==-=-  setting game state update to be available! (End of Player {player_num}'s turn) -=-=-=-=-=--=-=-=-=-=-=-=")
+                    self.set_game_state_update_available() # send the cue to the other threads to send the updated game_state
+                    # self.set_game_state_update_available(all_but = player_num) # send the cue to the other threads to send the updated game_state
 
             except Exception as e:
-                print("error in connection was: ")
+                print("error in connection was: (#2)")
                 print(e)
                 break
 
