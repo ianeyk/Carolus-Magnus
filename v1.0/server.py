@@ -1,5 +1,6 @@
 import socket
 from _thread import *
+from select import select
 import pickle
 from player import Player
 from game import Game
@@ -34,19 +35,19 @@ class Server():
             self.updates_available_by_player[all_but] = False
 
     def threaded_client(self, conn, player_num):
-        self.conn = conn
 
         game_state = self.game.get_game_state()
 
-        self.conn.send(str.encode(str(player_num)))
-        self.conn.send(pickle.dumps(game_state))
+        conn.send(str.encode(str(player_num)))
+        conn.send(pickle.dumps(game_state))
 
         while True:
 
             print("START OF LOOP: waiting for player", player_num, "to send an action")
 
             try:
-                action = pickle.loads(self.conn.recv(2048 * 8))
+                select([conn], [], []) # wait until the socket `conn` is available for reading
+                action = pickle.loads(conn.recv(2048 * 8))
             except Exception as e:
                 print("error in connection was: (#1)")
                 print(e)
@@ -67,13 +68,12 @@ class Server():
             self.publish_game_state()
 
         print("Lost connection")
-        self.conn.close()
+        conn.close()
         # assert(False) # crash so we can restart the server #TODO: take out this line when done debugging
 
     def publish_game_state(self):
         game_state = self.game.get_game_state()
         msg = pickle.dumps(game_state)
-
 
         print("sending message to all connections")
         for conn in self.connections_list:
@@ -85,12 +85,14 @@ class Server():
 
     def run_thread(self):
         while True:
-            self.conn, addr = self.socket.accept()
-            print("conn:", self.conn, "addr:", addr)
+            conn, addr = self.socket.accept()
+            print("conn:", conn, "addr:", addr)
             print("Connected to:", addr)
-            self.connections_list.append(self.conn)
 
-            start_new_thread(self.threaded_client, (self.conn, self.next_player_num))
+            conn.setblocking(False)
+            self.connections_list.append(conn)
+
+            start_new_thread(self.threaded_client, (conn, self.next_player_num))
             # self.next_player_num = 0
             # self.next_player_num += 1
             self.next_player_num = (self.next_player_num + 1) % 2
