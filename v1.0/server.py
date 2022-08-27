@@ -1,6 +1,7 @@
 import socket
 from _thread import *
 from select import select
+import threading
 import pickle
 from player import Player
 from game import Game
@@ -12,6 +13,7 @@ class Server():
         self.nPlayers = 4
         self.next_player_num = 0
 
+        self.n_seconds = 5
         self.updates_available_by_player = [True] * self.nPlayers
 
         self.connections_list = []
@@ -97,9 +99,16 @@ class Server():
             # self.next_player_num += 1
             self.next_player_num = (self.next_player_num + 1) % 2
 
+    # # publish the game state every 5 seconds, in case some message didn't get sent
+    # def every_n_seconds(self):
+    #     self.publish_game_state()
+    #     threading.Timer(self.n_seconds, self.every_n_seconds).start()
+
+
 def main():
     # my_server = Server(server = "192.168.32.30", port = 5555) # this doesn't work while using a phone as hotspot!
     my_server = Server(server = "localhost", port = 5555)
+    # my_server.every_n_seconds()
     my_server.run_thread()
 
 main()
