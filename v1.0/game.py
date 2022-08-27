@@ -138,10 +138,16 @@ class Game():
 
     def check_merge_criterion(self, terr_id):
         terr = self.territories[terr_id]
-        left_terr_id = (terr_id - 1) % len(self.territories)
-        left_terr = self.territories[left_terr_id]
-        right_terr_id = (terr_id + 1) % len(self.territories)
-        right_terr = self.territories[right_terr_id]
+
+        left_terr = None # initialize so the while loop initially picks something up
+        while left_terr is None: # avoid empty spaces
+            left_terr_id = (terr_id - 1) % len(self.territories)
+            left_terr = self.territories[left_terr_id]
+
+        right_terr = None # initialize so the while loop initially picks something up
+        while right_terr is None: # avoid empty spaces
+            right_terr_id = (terr_id + 1) % len(self.territories)
+            right_terr = self.territories[right_terr_id]
 
         if left_terr.owner == terr.owner and (left_terr.castles > 0 and terr.castles > 0):
             self.merge_territories(terr, left_terr)
