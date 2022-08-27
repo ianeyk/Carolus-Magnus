@@ -73,12 +73,14 @@ class Server():
         conn.close()
         # assert(False) # crash so we can restart the server #TODO: take out this line when done debugging
 
-    def publish_game_state(self):
+    def publish_game_state(self, dont_include_current_player = False):
         game_state = self.game.get_game_state()
         msg = pickle.dumps(game_state)
 
         print("sending message to all connections")
-        for conn in self.connections_list:
+        for i, conn in enumerate(self.connections_list):
+            if dont_include_current_player and i == game_state.whose_turn:
+                continue
             try:
                 conn.send(msg)
             except Exception as e:
@@ -99,16 +101,16 @@ class Server():
             # self.next_player_num += 1
             self.next_player_num = (self.next_player_num + 1) % 2
 
-    # # publish the game state every 5 seconds, in case some message didn't get sent
-    # def every_n_seconds(self):
-    #     self.publish_game_state()
-    #     threading.Timer(self.n_seconds, self.every_n_seconds).start()
+    # publish the game state every 5 seconds, in case some message didn't get sent
+    def every_n_seconds(self):
+        self.publish_game_state(dont_include_current_player = True)
+        threading.Timer(self.n_seconds, self.every_n_seconds).start()
 
 
 def main():
     # my_server = Server(server = "192.168.32.30", port = 5555) # this doesn't work while using a phone as hotspot!
     my_server = Server(server = "localhost", port = 5555)
-    # my_server.every_n_seconds()
+    my_server.every_n_seconds()
     my_server.run_thread()
 
 main()
