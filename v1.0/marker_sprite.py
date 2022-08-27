@@ -33,5 +33,9 @@ class MarkerSprite(pygame.sprite.Sprite):
 
 class Crown(MarkerSprite):
     pngs = {
-        0: "./sprites/crown1.png"
+        0: "./sprites/crowns/green_crown1.png",
+        1: "./sprites/crowns/red_crown1.png",
+        2: "./sprites/crowns/blue_crown1.png",
+        3: "./sprites/crowns/yellow_crown1.png",
+        4: "./sprites/crowns/pink_crown1.png"
     }

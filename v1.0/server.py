@@ -78,8 +78,8 @@ class Server():
         msg = pickle.dumps(game_state)
 
         print("sending message to all connections")
-        for i, conn in enumerate(self.connections_list):
-            if dont_include_current_player and i == game_state.whose_turn:
+        for player_number, conn in enumerate(self.connections_list):
+            if dont_include_current_player and player_number == game_state.whose_turn:
                 continue
             try:
                 conn.send(msg)

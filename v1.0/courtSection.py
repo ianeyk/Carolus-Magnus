@@ -27,7 +27,7 @@ class CourtSection(pygame.sprite.Sprite):
         self.prev_cube_count = copy(self.num_cubes)
 
         self.crown_coords = (self.x, self.y)
-        self.crown = Crown(self.crown_coords, 40, height_factor = 0.7, png_id = 0, visible = False)
+        self.crown = Crown(self.crown_coords, 40, height_factor = 0.7, png_id = self.color_id, visible = False)
 
         png_image = pygame.image.load(CourtSection.pngs[color_id])
         self.image = pygame.transform.smoothscale(png_image, CourtSection.size)
