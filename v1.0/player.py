@@ -32,11 +32,11 @@ class Player():
         self.player_number = player_number
         self.render = render
         self.player_render = self.render.player_areas[self.player_number]
+        self.map = self.render.map
 
         self.game_state = 0 #TODO: get game_state
         self.selected_territory = 0
         self.prev_selected_territory = 0 # from when we were just selecting cubes, not the king
-        self.map = self.render.map
         self.n_territories = len(self.map.territories)
 
         self.selection_mode = Player.SelectionType.CUBES
@@ -59,9 +59,10 @@ class Player():
         self.cubes_placed = 0
 
 
-    def reset_player_area(self, player_render, map):
-        self.player_render = player_render
-        self.map = map
+    def reset_player_area(self, render: Render):
+        self.render = render
+        self.player_render = self.render.player_areas[self.player_number]
+        self.map = self.render.map
 
         self.selected_territory = 0
         self.n_territories = len(self.map.territories)

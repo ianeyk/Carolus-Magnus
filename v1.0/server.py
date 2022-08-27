@@ -60,14 +60,17 @@ class Server():
                 game_state = self.game.get_game_state()
                 print("^^^ sending that game_state's next player order is", game_state.whose_turn)
 
-                self.conn.send(pickle.dumps(game_state))
 
                 if action == "Waiting for game state":
                     self.updates_available_by_player[player_num] = False
                 else:
+                    self.game.handle_action(action) # first, handle the action!!!
                     print(f"=-=-=-=-=-=-==-=-  setting game state update to be available! (End of Player {player_num}'s turn) -=-=-=-=-=--=-=-=-=-=-=-=")
                     self.set_game_state_update_available() # send the cue to the other threads to send the updated game_state
                     # self.set_game_state_update_available(all_but = player_num) # send the cue to the other threads to send the updated game_state
+
+                    game_state = self.game.get_game_state()
+                    self.conn.send(pickle.dumps(game_state))
 
             except Exception as e:
                 print("error in connection was: (#2)")

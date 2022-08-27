@@ -36,7 +36,7 @@ class Client():
         self.waiting_thread_running = False
 
         self.r.update_game_state(self.game_state)
-        self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
+        self.p1.reset_player_area(self.r)
         # self.reset_turn()
         # self.flip_display()
         pass # breakpoint
@@ -112,10 +112,11 @@ class Client():
                 print("==============  My turn is over.  =========================")
                 print("Prior to submitting Action, it was player", self.game_state.whose_turn, "'s turn. ==========")
                 self.game_state = self.network.send(game_cube_actions) # transmits the client-side Actions and receives an updated game_state from the server
+                # self.game_state = self.network.send(game_cube_actions) # transmits the client-side Actions and receives an updated game_state from the server
                 print("Updating game state to", self.game_state)
                 print("============== It's player", self.game_state.whose_turn, "'s Turn!! ============================")
-                self.r.update_game_state(self.game_state)
-                self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
+                # self.r.update_game_state(self.game_state)
+                # self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
                 self.reset_turn()
                 continue # self.reset_turn() already includes a call to self.flip_display()
 
@@ -140,7 +141,13 @@ class Client():
             self.game_state = self.network.send("Waiting for game state") # hopefully this is asynchronous
             print("pickle received!!!!")
             print("It is now", self.game_state.whose_turn, "'s turn.")
+
+            self.r.update_game_state(self.game_state)
+            self.p1.reset_player_area(self.r)
+            self.reset_turn()
+
         self.waiting_thread_running = False
+        self.flip_display()
         print("Waiting Thread is Done Running!.")
         return
 
