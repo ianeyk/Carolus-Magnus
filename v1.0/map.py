@@ -52,7 +52,6 @@ class Map(pygame.sprite.Sprite):
         return (terr_x, terr_y)
 
     def update(self, new_territories): # : Optional[GameState] #TODO: look up correct typing for an object that can be either GameState or None
-        print("map is updating game state")
 
         # initialize counters
         empty_terr_count = 0

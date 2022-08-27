@@ -1,6 +1,8 @@
 from re import L
+from sys import set_coroutine_origin_tracking_depth
 import time
 import pygame
+from _thread import *
 from network import Network
 from player import Player
 from render import Render
@@ -31,6 +33,7 @@ class Client():
         self.groups = Groups(self.display)
 
         self.setup_events()
+        self.waiting_thread_running = False
 
         self.r.update_game_state(self.game_state)
         self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
@@ -52,7 +55,7 @@ class Client():
 
     def setup_display(self, width, height):
         pygame.display.init()
-        pygame.display.set_caption("Client")
+        pygame.display.set_caption("Client " + str(self.player_number))
         display = pygame.display.set_mode((width, height))
         return display
 
@@ -86,9 +89,12 @@ class Client():
                 self.on_quit()
                 pygame.quit()
 
+
             if self.game_state.whose_turn != self.player_number:
-                if self.I_know_its_my_turn:
-                    self.I_know_its_my_turn = False
+                if not self.waiting_thread_running:
+                    start_new_thread(self.waiting_pattern, ()) # this should update game_state when ready
+                    self.waiting_thread_running = True
+
                 continue
 
             # it's my turn!
@@ -100,11 +106,14 @@ class Client():
                 continue
 
             # a keydown even has occurred!
-
+            # action paattern
             game_cube_actions = self.p1.select(event)
             if game_cube_actions is not None: # turn is over
+                print("==============  My turn is over.  =========================")
+                print("Prior to submitting Action, it was player", self.game_state.whose_turn, "'s turn. ==========")
                 self.game_state = self.network.send(game_cube_actions) # transmits the client-side Actions and receives an updated game_state from the server
                 print("Updating game state to", self.game_state)
+                print("============== It's player", self.game_state.whose_turn, "'s Turn!! ============================")
                 self.r.update_game_state(self.game_state)
                 self.p1.reset_player_area(self.r.player_areas[self.player_number], self.r.map)
                 self.reset_turn()
@@ -119,6 +128,21 @@ class Client():
             # self.groups.draw()
             # pygame.display.update(updated_rects)
             # pygame.display.flip()
+
+    def waiting_pattern(self):
+        # waiting pattern
+        while self.game_state.whose_turn != self.player_number:
+            print("Prior to this loop, it was", self.game_state.whose_turn, "'s turn.")
+            # if self.I_know_its_my_turn:
+                # self.I_know_its_my_turn = False
+            self.reset_turn()
+            print("trying to receive pickle")
+            self.game_state = self.network.send("Waiting for game state") # hopefully this is asynchronous
+            print("pickle received!!!!")
+            print("It is now", self.game_state.whose_turn, "'s turn.")
+        self.waiting_thread_running = False
+        print("Waiting Thread is Done Running!.")
+        return
 
 def main():
     width = 1280

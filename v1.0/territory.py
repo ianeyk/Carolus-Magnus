@@ -68,7 +68,6 @@ class Territory(): # pygame.sprite.Sprite):
             self.cubes.append(Cube(*self.coords_of_cube(loc), color_id))
 
     def update(self, new_terr: GameTerritory):
-        print("territory is updating game state")
         self.terr_size = new_terr.size
         self.expand_hexes() # expand first, before adding cubes
 
@@ -91,17 +90,10 @@ class Territory(): # pygame.sprite.Sprite):
         self.remove_all_temp_cubes()
         # current_cube_set = Counter(self.cube_list)
         current_cube_set = Counter([c.ordinal_id for c in self.cubes])
-        print("cube set object", current_cube_set)
-        print("self.cubes is", self.cubes)
         for color_id in range(5):
-            print("color is:", color_id)
-            # print("current_cube_set is:", current_cube_set.get(color_id, 0))
-            print("current_cube_set is:", current_cube_set.get(color_id, 0))
-            print("new_cube_set is:", new_cube_set[color_id])
             while new_cube_set[color_id] > current_cube_set.get(color_id, 0): # default value of 0
                 cube_coords = self.add_cube(6, color_id)
                 self.cubes.append(Cube(*cube_coords, color_id))
-                print("adding one more cube to this territory")
                 new_cube_set[color_id] -= 1
 
         # reset the temp_cube tracking
@@ -231,7 +223,6 @@ class Territory(): # pygame.sprite.Sprite):
 
         self.max_num_cubes = self.terr_size * self.hexes_per_unit_size * self.cubes_per_hex
         self.placement_order = list(range(self.max_num_cubes))
-        print("len of placement_order is", len(self.placement_order))
         random.shuffle(self.placement_order)
 
         self.all_castle_coords = self.get_all_castle_coords()

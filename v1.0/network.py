@@ -23,6 +23,7 @@ class Network:
             print(e)
             assert(False) #TODO: Make this pythonic
         player_num = int(self.receive_str(256))
+        print("Player number is:", player_num)
         game_state = self.receive_pickle(2048 * 256)
         return player_num, game_state
 
@@ -43,7 +44,7 @@ class Network:
         except socket.error as e:
             print(e)
 
-    def receive_pickle(self, bytes = 2048 * 256 * 4):
+    def receive_pickle(self, bytes = 2048 * 256 * 64):
         try:
             received = self.client.recv(bytes)
             # print("Network received:", received)

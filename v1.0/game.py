@@ -62,7 +62,9 @@ class Game():
 
         # perform king action: advance the king marker and check territory control
         self.move_king(action.king) #TODO: uncomment this line
-        self.whose_turn = self.next_player()
+        # self.whose_turn = self.next_player()
+        self.whose_turn = (self.whose_turn + 1) % 2
+        print("Game says it's player", self.whose_turn, "'s turn.!!!")
 
     def next_player(self):
         initiatives = [player.current_initiative for player in self.players]
