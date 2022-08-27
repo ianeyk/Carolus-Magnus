@@ -72,16 +72,16 @@ class Server():
 
     def publish_game_state(self):
         game_state = self.game.get_game_state()
-        try:
-            msg = pickle.dumps(game_state)
-        except Exception as e:
-            print("error in connection was: (#2)")
-            print(e)
+        msg = pickle.dumps(game_state)
 
 
         print("sending message to all connections")
         for conn in self.connections_list:
-            conn.send(msg)
+            try:
+                conn.send(msg)
+            except Exception as e:
+                print("error in connection was: (#2)")
+                print(e)
 
     def run_thread(self):
         while True:
