@@ -129,6 +129,7 @@ class Player():
 
         actions_to_return = Action(self.player_render.team, cube_actions, king = self.king_movements)
 
+        self.selection_mode = Player.SelectionType.CUBES
         self.selected_territory = 0 # reset for the start of next turn
         self.king_movements = 0 # reset for the start of the next king phase
         return actions_to_return

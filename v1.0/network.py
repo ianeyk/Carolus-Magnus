@@ -30,7 +30,7 @@ class Network:
     def send(self, data):
         try:
             self.client.send(pickle.dumps(data))
-            return self.receive_pickle(bytes = 2048 * 256)
+            # return self.receive_pickle(bytes = 2048 * 256)
         except socket.error as e:
             print(e)
 
