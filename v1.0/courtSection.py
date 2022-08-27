@@ -1,6 +1,8 @@
 import pygame
 import math
 from cube import Cube
+from marker_sprite import Crown
+from groups import Groups
 from copy import copy
 
 class CourtSection(pygame.sprite.Sprite):
@@ -24,6 +26,9 @@ class CourtSection(pygame.sprite.Sprite):
         self.num_cubes = num_cubes
         self.prev_cube_count = copy(self.num_cubes)
 
+        self.crown_coords = (self.x, self.y)
+        self.crown = Crown(self.crown_coords, 40, height_factor = 0.7, png_id = 0, visible = False)
+
         png_image = pygame.image.load(CourtSection.pngs[color_id])
         self.image = pygame.transform.smoothscale(png_image, CourtSection.size)
         self.rect = (x - CourtSection.size[0] / 2, y, *CourtSection.size)
@@ -42,9 +47,10 @@ class CourtSection(pygame.sprite.Sprite):
     def coords_of_cube(self, loc):
         return (self.x + loc[0], self.y + loc[1] + CourtSection.cube_vertical_offset)
 
-    def draw(self, group):
-        self.add(group)
-        self.draw_cubes(group)
+    def draw(self, groups: Groups):
+        self.add(groups.court_section_group)
+        self.draw_cubes(groups.cubes_group)
+        self.crown.draw(groups.crown_group)
 
     def draw_cubes(self, group):
         for cube in self.cube_list:
@@ -57,3 +63,6 @@ class CourtSection(pygame.sprite.Sprite):
         for pos in range(9):
             locs.append(( Cube.size[0] / 2 * spacing, pos * Cube.size[1] * spacing))
         return locs
+
+    def show_crown(self, val):
+        self.crown.visible = val

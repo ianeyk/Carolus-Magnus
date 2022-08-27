@@ -56,6 +56,11 @@ class Render(pygame.sprite.Sprite):
         print("render is updating game state")
         for (player_area, game_player) in zip(self.player_areas, game_state.players):
             player_area.update(game_player)
+
+        for color_id, controlling_player in enumerate(game_state.court_control_list):
+            if controlling_player is not None:
+                self.player_areas[controlling_player].show_control(color_id)
+
         self.map.update(game_state.territories)
 
         self.move_king(game_state.king)

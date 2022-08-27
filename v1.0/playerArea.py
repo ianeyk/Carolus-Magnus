@@ -46,20 +46,24 @@ class PlayerArea(pygame.sprite.Sprite):
         self.cube_counts = game_player.court.get_cubes()
         for color_id, cube_count in enumerate(self.cube_counts):
             self.court_sections[color_id].update(cube_count)
+            self.court_sections[color_id].show_crown(False)
 
         # update cache
         self.cache_list = sorted(game_player.cache.get_cube_list())
         self.cache.update(self.cache_list)
 
+    def show_control(self, color_id): # gets called after self.update(), in which set_crown is set to False for all sections
+        self.court_sections[color_id].show_crown(True)
+
     def draw(self, groups: Groups):
         self.add(groups.player_area_group)
-        self.draw_court(groups.player_area_group)
+        self.draw_court(groups)
         self.cache.draw_cubes(groups.cubes_group)
         self.token_set.draw(groups.initiative_tokens)
 
-    def draw_court(self, group):
+    def draw_court(self, groups):
         for court_section in self.court_sections:
-            court_section.draw(group)
+            court_section.draw(groups)
 
     def select_cube(self, which_cube):
         return self.cache.select_cube(which_cube)

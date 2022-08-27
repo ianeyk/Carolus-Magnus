@@ -77,6 +77,7 @@ class Player():
         self.search_mode = Player.CubeRegion.CACHE # used in self.right_cube()
 
         self.cubes_placed = 0
+        self.king_movements = 0
 
     def check_king_movement(self):
         assert(self.king_movements <= self.king_movements_allowed) # this should never happen
@@ -129,9 +130,9 @@ class Player():
 
         actions_to_return = Action(self.player_render.team, cube_actions, king = self.king_movements)
 
-        self.selection_mode = Player.SelectionType.CUBES
-        self.selected_territory = 0 # reset for the start of next turn
-        self.king_movements = 0 # reset for the start of the next king phase
+        # self.selection_mode = Player.SelectionType.CUBES
+        # self.selected_territory = 0 # reset for the start of next turn
+        # self.king_movements = 0 # reset for the start of the next king phase
         return actions_to_return
 
 
@@ -158,9 +159,11 @@ class Player():
         elif self.selection_mode == Player.SelectionType.TERRITORIES:
             self.select_territory(event)
         elif self.selection_mode == Player.SelectionType.KING:
-            return self.select_king(event)
+            return self.select_king(event) # returns either None or an Actions object
         elif self.selection_mode == Player.SelectionType.END_TURN:
-            return self.return_actions()
+            print("Inside Player", self.player_number, ", we have reached the end of our turn and no longer wish to transmit.")
+            # return self.return_actions()
+            pass # don't return the actions a second time
         # else:
         return None
 
